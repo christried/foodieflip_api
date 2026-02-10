@@ -1,0 +1,68 @@
+[
+  {
+    "id": "1",
+    "title": "Dummy Recipe",
+    "time": 20,
+    "image": "dummy.jpg",
+    "ingredients": [
+      "2 dummy fillets",
+      "3 tbsp soy sauce",
+      "2 cloves garlic, minced",
+      "1 tbsp sugar",
+      "1 tbsp sesame oil",
+      "Sesame seeds for garnish"
+    ],
+    "instructions": [
+      "Mix soy sauce, garlic, sugar, and sesame oil in a bowl.",
+      "Marinate dummy filet for 10 minutes.",
+      "Heat a pan over medium-high heat.",
+      "Sear dummy 4 minutes per side, basting with glaze.",
+      "Garnish with sesame seeds and serve."
+    ],
+    "tags": ["soy", "greens", "gluten-free", "dummy"]
+  },
+  {
+    "id": "2",
+    "title": "Dummy Recipe 2",
+    "time": 20,
+    "image": "dummy.jpg",
+    "ingredients": [
+      "2 dummy fillets",
+      "3 tbsp soy sauce",
+      "2 cloves garlic, minced",
+      "1 tbsp sugar",
+      "1 tbsp sesame oil",
+      "Sesame seeds for garnish"
+    ],
+    "instructions": [
+      "Mix soy sauce, garlic, sugar, and sesame oil in a bowl.",
+      "Marinate dummy filet for 10 minutes.",
+      "Heat a pan over medium-high heat.",
+      "Sear dummy 4 minutes per side, basting with glaze.",
+      "Garnish with sesame seeds and serve."
+    ],
+    "tags": ["soy", "greens", "gluten-free", "dummy"]
+  },
+  {
+    "id": "3",
+    "title": "Dummy Recipe 3",
+    "time": 20,
+    "image": "dummy.jpg",
+    "ingredients": [
+      "2 dummy fillets",
+      "3 tbsp soy sauce",
+      "2 cloves garlic, minced",
+      "1 tbsp sugar",
+      "1 tbsp sesame oil",
+      "Sesame seeds for garnish"
+    ],
+    "instructions": [
+      "Mix soy sauce, garlic, sugar, and sesame oil in a bowl.",
+      "Marinate dummy filet for 10 minutes.",
+      "Heat a pan over medium-high heat.",
+      "Sear dummy 4 minutes per side, basting with glaze.",
+      "Garnish with sesame seeds and serve."
+    ],
+    "tags": ["soy", "greens", "gluten-free", "dummy"]
+  }
+]
