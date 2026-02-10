@@ -3,7 +3,8 @@
     "id": "1",
     "title": "Dummy Recipe",
     "time": 20,
-    "image": "dummy.jpg",
+    "imagePath": "dummy.jpg",
+    "imageAlt": "Dummy Recipe",
     "ingredients": [
       "2 dummy fillets",
       "3 tbsp soy sauce",
@@ -24,8 +25,9 @@
   {
     "id": "2",
     "title": "Dummy Recipe 2",
-    "time": 20,
-    "image": "dummy.jpg",
+    "time": 40,
+    "imagePath": "dummy.jpg",
+    "imageAlt": "Dummy Recipe 2",
     "ingredients": [
       "2 dummy fillets",
       "3 tbsp soy sauce",
@@ -46,8 +48,9 @@
   {
     "id": "3",
     "title": "Dummy Recipe 3",
-    "time": 20,
-    "image": "dummy.jpg",
+    "time": 60,
+    "imagePath": "dummy.jpg",
+    "imageAlt": "Dummy Recipe 3",
     "ingredients": [
       "2 dummy fillets",
       "3 tbsp soy sauce",
