@@ -1,71 +1,93 @@
 [
   {
     "id": "1",
-    "title": "Dummy Recipe",
+    "title": "Bananenbrot",
     "time": 20,
-    "imagePath": "dummy.jpg",
-    "imageAlt": "Dummy Recipe",
+    "imagePath": "bananenbrot.jpg",
+    "imageAlt": "Bananenbrot",
     "ingredients": [
-      "2 dummy fillets",
-      "3 tbsp soy sauce",
-      "2 cloves garlic, minced",
-      "1 tbsp sugar",
-      "1 tbsp sesame oil",
-      "Sesame seeds for garnish"
+      "3 reife Bananen (ca. 330g geschält)",
+      "100ml neutrales Öl (z.B. Rapsöl)",
+      "100ml Vanille-Pflanzenmilch ",
+      "1 Tüte Vanillezucker",
+      "200g (Vollkorn-)Mehl",
+      "150g Rohrohrzucker",
+      "75g gehackte Walnusskerne",
+      "2 TL Backpulver",
+      "¼ TL Salz",
+      "1 EL Speisestärke"
     ],
     "instructions": [
-      "Mix soy sauce, garlic, sugar, and sesame oil in a bowl.",
-      "Marinate dummy filet for 10 minutes.",
-      "Heat a pan over medium-high heat.",
-      "Sear dummy 4 minutes per side, basting with glaze.",
-      "Garnish with sesame seeds and serve."
+      "1. Backofen auf 180° (Ober-Unterhitze)",
+      "2. Vermatschen: Bananen, Öl, pflanzliche Milch und Vanille, aber nicht zu fein pürieren",
+      "3. Trockene Zutaten dazu: Mehl, Zucker, Backpulver, Salz, Speisestärke und Teig gut umrühren",
+      "4. Teig in (gefettete) Backform füllen und bis zu 60 Minuten backen, ggf. mit Stäbchen probieren ob gar"
     ],
-    "tags": ["soy", "greens", "gluten-free", "dummy"]
+    "tags": ["cake", "bake", "gluten", "soy-free", "gluten", "german"]
   },
   {
     "id": "2",
-    "title": "Dummy Recipe 2",
+    "title": "Linsen Bolognese",
     "time": 40,
-    "imagePath": "dummy.jpg",
-    "imageAlt": "Dummy Recipe 2",
+    "imagePath": "linsenbolo.jpg",
+    "imageAlt": "Linsen Bolognese",
     "ingredients": [
-      "2 dummy fillets",
-      "3 tbsp soy sauce",
-      "2 cloves garlic, minced",
-      "1 tbsp sugar",
-      "1 tbsp sesame oil",
-      "Sesame seeds for garnish"
+      "125g Rote Linsen",
+      "1 große Zwiebel",
+      "1 TL Kurkuma*",
+      "1 Karotte",
+      "1 Stange Sellerie oder 1 Paprika",
+      "100g Pilze",
+      "2 Knoblauchzehen",
+      "2 EL Tomatenmark",
+      "1 Dose gehackte Tomaten",
+      "1 TL (brauner) Zucker",
+      "275ml Gemüsebrühe",
+      "2 EL Hefeflocken*",
+      "3 TL „Italienische Kräuter“*",
+      "Salz, Pfeffer*",
+      "Hefeflocken, frische Kräuter**",
+      "125g Pasta nach Wahl"
     ],
     "instructions": [
-      "Mix soy sauce, garlic, sugar, and sesame oil in a bowl.",
-      "Marinate dummy filet for 10 minutes.",
-      "Heat a pan over medium-high heat.",
-      "Sear dummy 4 minutes per side, basting with glaze.",
-      "Garnish with sesame seeds and serve."
+      "1. Pasta kochen, kriegst du hin",
+      "2. Währenddessen Zwiebeln mit Knoblauch und Kurkuma mit etwa Öl glasig braten",
+      "3. Gemüse, Gewürze & Pilze hinzugeben und für 5-10 anbraten je nachdem wie angeröstet es sein soll",
+      "4. Linsen, Tomaten(-mark), Zucker, Gemüsebrühe und Hefeflocken dazugeben, verrühren, zum Kochen bringen und dann bei mittlerer Hitze 15 Minuten köcheln lassen, gelegentlich umrühren",
+      "5. Mit Pasta servieren und mit Hefeflocken / Kräutern garnieren"
     ],
-    "tags": ["soy", "greens", "gluten-free", "dummy"]
+    "tags": ["legumes", "pasta", "gluten", "soy-free", "german"]
   },
   {
     "id": "3",
-    "title": "Dummy Recipe 3",
+    "title": "Paella",
     "time": 60,
-    "imagePath": "dummy.jpg",
-    "imageAlt": "Dummy Recipe 3",
+    "imagePath": "paella.jpg",
+    "imageAlt": "Paella",
     "ingredients": [
-      "2 dummy fillets",
-      "3 tbsp soy sauce",
-      "2 cloves garlic, minced",
-      "1 tbsp sugar",
-      "1 tbsp sesame oil",
-      "Sesame seeds for garnish"
+      "125g Topping (z. B. Tofu)",
+      "2 mittelgroße (rote) Zwiebeln",
+      "4 Knoblauchzehen",
+      "1 (rote) Paprika",
+      "160g Paella- oder Risottoreis",
+      "2 TL geräucherte Paprika*",
+      "1 TL Kurkuma*",
+      "600ml Gemüsebrühe",
+      "8 Babytomaten",
+      "100g Erbsen (frisch/TK)",
+      "frische Petersilie**",
+      "Zitronen, geviertelt**"
     ],
     "instructions": [
-      "Mix soy sauce, garlic, sugar, and sesame oil in a bowl.",
-      "Marinate dummy filet for 10 minutes.",
-      "Heat a pan over medium-high heat.",
-      "Sear dummy 4 minutes per side, basting with glaze.",
-      "Garnish with sesame seeds and serve."
+      "1. Topping mit etwas Öl goldbraun braten und aus der Pfanne nehmen",
+      "2. Zwiebeln, Knoblauch und Paprika mit etwas Öl anbraten, bis die Zwiebeln weich und glasig sind",
+      "3. Den Reis und die Gewürze dazugeben, gut durchführen und wenige Minuten weiter braten",
+      "4. Gemüsebrühe hinzufügen und nochmal rühren, um alles gleichmäßig zu verteilen",
+      "5. Ab jetzt nicht mehr rühren, sonst wirds Risotto. Die Paella für etwa 10 Minuten zum Kochen bringen",
+      "6. Hitze reduzieren und dann Tomaten, Topping und Erbsen auf der Paella verteilen und leicht andrücken. Danach Pfanne teils abdecken und die Paella für 10 Minuten köcheln lassen",
+      "7. Sobald kaum noch Flüssigkeit sichtbar ist, mit einem kleinen Löffel prüfen, ob am Boden der Pfanne „Kruste“ entstanden ist",
+      "8. Falls „Kruste“ zufriedenstellend, Pfanne vom Herd nehmen, kurz ruhen lassen und garniert servieren"
     ],
-    "tags": ["soy", "greens", "gluten-free", "dummy"]
+    "tags": ["rice", "spanish", "gluten-free", "soy-free", "german"]
   }
 ]
