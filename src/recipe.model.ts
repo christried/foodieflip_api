@@ -3,6 +3,7 @@ export interface Recipe {
   title: string;
   time: number;
   imagePath: string;
+  imageUrl?: string;
   imageAlt: string;
   ingredients: string[];
   instructions: string[];

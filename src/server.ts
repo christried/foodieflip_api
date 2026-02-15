@@ -1,10 +1,12 @@
 import express from "express";
 import cors from "cors";
 import { recipeRouter } from "./routes/recipes";
+import path from "path";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api/images", express.static(path.join(__dirname, "data/img")));
 
 // Routes
 // possibility to add further sub-files later

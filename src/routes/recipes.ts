@@ -14,17 +14,17 @@ recipeRouter.get("/", (_req: Request, res: Response) => {
 });
 
 // GET /api/recipes/:id
-recipeRouter.get("/:id", (req: Request, res: Response) => {
-  const recipe = recipeList.find((r) => r.id === req.params.id);
-  if (!recipe) {
-    res.status(404).json({ error: "Recipe not found" });
-    return;
-  }
+// recipeRouter.get("/:id", (req: Request, res: Response) => {
+//   const recipe = recipeList.find((r) => r.id === req.params.id);
+//   if (!recipe) {
+//     res.status(404).json({ error: "Recipe not found" });
+//     return;
+//   }
 
-  res.json(recipe);
-});
+//   res.json(recipe);
+// });
 
-// GET /api/recipes/random/:timeType
+// GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
   const complexity = req.params.complexity;
   const maxTime =
@@ -43,5 +43,10 @@ recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
 
   const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
 
-  res.json(randomRecipe);
+  const recipeWithImage = {
+    ...randomRecipe,
+    imageUrl: `${req.protocol}://${req.get("host")}/api/images/${randomRecipe.id}/${randomRecipe.imagePath}`,
+  };
+
+  res.json(recipeWithImage);
 });
