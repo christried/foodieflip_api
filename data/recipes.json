@@ -1,128 +1,507 @@
 [
-  {
-    "id": "1",
-    "title": "Bananenbrot",
-    "time": 20,
-    "imagePath": "bananenbrot.jpg",
-    "imageAlt": "Bananenbrot",
-    "ingredients": [
-      "3 reife Bananen (ca. 330g geschält)",
-      "100ml neutrales Öl (z.B. Rapsöl)",
-      "100ml Vanille-Pflanzenmilch ",
-      "1 Tüte Vanillezucker",
-      "200g (Vollkorn-)Mehl",
-      "150g Rohrohrzucker",
-      "75g gehackte Walnusskerne",
-      "2 TL Backpulver",
-      "¼ TL Salz",
-      "1 EL Speisestärke"
-    ],
-    "instructions": [
-      "1. Backofen auf 180° (Ober-Unterhitze)",
-      "2. Vermatschen: Bananen, Öl, pflanzliche Milch und Vanille, aber nicht zu fein pürieren",
-      "3. Trockene Zutaten dazu: Mehl, Zucker, Backpulver, Salz, Speisestärke und Teig gut umrühren",
-      "4. Teig in (gefettete) Backform füllen und bis zu 60 Minuten backen, ggf. mit Stäbchen probieren ob gar"
-    ],
-    "tags_public": [
-      "cake",
-      "bake",
-      "gluten",
-      "soy-free"
-    ],
-    "tags_internal": [
-      "ai-image",
-      "german"
-    ],
-    "upvotes": 20,
-    "downvotes": 14,
-    "submittedBy": "FoodieFlip"
-  },
-  {
-    "id": "2",
-    "title": "Lentil Bolognese",
-    "time": 40,
-    "imagePath": "lentil_bolognese.jpg",
-    "imageAlt": "Lentil Bolognese",
-    "ingredients": [
-      "125g red lentils",
-      "1 large onion",
-      "1 tsp turmeric*",
-      "1 carrot",
-      "1 celery stalk or 1 bell pepper",
-      "100g mushrooms",
-      "2 garlic cloves",
-      "2 tbsp tomato paste",
-      "1 can chopped tomatoes",
-      "1 tsp (brown) sugar",
-      "275ml vegetable broth",
-      "2 tbsp nutritional yeast*",
-      "3 tsp 'Italian herbs'*",
-      "Salt, pepper*",
-      "Nutritional yeast, fresh herbs**",
-      "125g pasta of choice"
-    ],
-    "instructions": [
-      "1. Cook the pasta, you can do it.",
-      "2. Meanwhile, sauté onions with garlic and turmeric in some oil until translucent.",
-      "3. Add vegetables, spices, and mushrooms, and sauté for 5-10 minutes depending on how roasted you want them.",
-      "4. Add lentils, tomatoes (and paste), sugar, vegetable broth, and nutritional yeast. Stir, bring to a boil, and then simmer over medium heat for 15 minutes, stirring occasionally.",
-      "5. Serve with pasta and garnish with nutritional yeast or herbs."
-    ],
-    "tags_public": [
-      "legumes",
-      "pasta",
-      "gluten",
-      "soy-free"
-    ],
-    "tags_internal": [
-      "ai-image",
-      "english"
-    ],
-    "upvotes": 11,
-    "downvotes": 3,
-    "submittedBy": "FoodieFlip"
-  },
-  {
-    "id": "3",
-    "title": "Paella",
-    "time": 60,
-    "imagePath": "paella.jpg",
-    "imageAlt": "Paella",
-    "ingredients": [
-      "125g topping (e.g., tofu)",
-      "2 medium-sized (red) onions",
-      "4 garlic cloves",
-      "1 (red) bell pepper",
-      "160g paella or risotto rice",
-      "2 tsp smoked paprika*",
-      "1 tsp turmeric*",
-      "600ml vegetable broth",
-      "8 cherry tomatoes",
-      "100g peas (fresh/frozen)",
-      "Fresh parsley**",
-      "Lemons, quartered**"
-    ],
-    "instructions": [
-      "1. Fry the topping in some oil until golden brown and remove from the pan.",
-      "2. Sauté onions, garlic, and bell pepper in some oil until the onions are soft and translucent.",
-      "3. Add the rice and spices, stir well, and continue frying for a few minutes.",
-      "4. Add vegetable broth and stir again to distribute everything evenly.",
-      "5. From this point, do not stir anymore, or it will turn into risotto. Bring the paella to a boil for about 10 minutes.",
-      "6. Reduce the heat, then distribute tomatoes, topping, and peas on the paella and press them in lightly. Partially cover the pan and let the paella simmer for 10 minutes.",
-      "7. Once there is hardly any liquid visible, use a small spoon to check if a 'crust' has formed at the bottom of the pan.",
-      "8. If the 'crust' is satisfactory, remove the pan from the heat, let it rest briefly, and serve garnished."
-    ],
-    "tags_public": [
-      "rice",
-      "gluten-free",
-      "soy-free"
-    ],
-    "tags_internal": [
-      "ai-image",
-      "english"
-    ],
-    "upvotes": 4,
-    "downvotes": 6,
-    "submittedBy": "FoodieFlip"
-  }
+    {
+        "id":  "1",
+        "title":  "Bananenbrot",
+        "time":  60,
+        "imagePath":  "bananenbrot.jpg",
+        "imageAlt":  "Saftiges veganes Bananenbrot mit Walnüssen",
+        "ingredients":  [
+                            "3 reife Bananen (ca. 330g geschält)",
+                            "100ml neutrales Öl (z.B. Rapsöl)",
+                            "100ml Vanille-Pflanzenmilch",
+                            "1 Tüte Vanillezucker",
+                            "200g (Vollkorn-)Mehl",
+                            "150g Rohrohrzucker",
+                            "75g gehackte Walnusskerne",
+                            "2 TL Backpulver",
+                            "¼ TL Salz",
+                            "1 EL Speisestärke"
+                        ],
+        "instructions":  [
+                             "1. Den Backofen auf 180°C (Ober-/Unterhitze) vorheizen.",
+                             "2. Die Bananen mit dem Öl, der pflanzlichen Milch und dem Vanillezucker in einer Schüssel gründlich zerdrücken, jedoch nicht vollständig pürieren.",
+                             "3. Die trockenen Zutaten (Mehl, Zucker, Backpulver, Salz, Speisestärke) hinzufügen und alles gut verrühren.",
+                             "4. Den Teig in eine gefettete Backform füllen und ca. 60 Minuten backen. Mit der Stäbchenprobe prüfen, ob das Brot durchgebacken ist."
+                         ],
+        "tags_public":  [
+                            "kuchen",
+                            "backen",
+                            "dessert",
+                            "sojafrei",
+                            "frühstück"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "german"
+                          ],
+        "upvotes":  20,
+        "downvotes":  14,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "2",
+        "title":  "Lentil Bolognese",
+        "time":  40,
+        "imagePath":  "lentil_bolognese.jpg",
+        "imageAlt":  "Hearty vegan lentil bolognese with pasta",
+        "ingredients":  [
+                            "125g red lentils",
+                            "1 large onion",
+                            "1 tsp turmeric",
+                            "1 carrot",
+                            "1 celery stalk or 1 bell pepper",
+                            "100g mushrooms",
+                            "2 garlic cloves",
+                            "2 tbsp tomato paste",
+                            "1 can chopped tomatoes",
+                            "1 tsp brown sugar",
+                            "275ml vegetable broth",
+                            "2 tbsp nutritional yeast",
+                            "3 tsp dried Italian herbs",
+                            "Salt and pepper to taste",
+                            "Fresh herbs for garnish",
+                            "125g pasta of choice"
+                        ],
+        "instructions":  [
+                             "1. Cook the pasta according to package instructions until al dente.",
+                             "2. Meanwhile, dice the onion and sauté with minced garlic and turmeric in a pan with some oil until translucent.",
+                             "3. Chop vegetables and mushrooms, add to the pan with spices, and sauté for 5-10 minutes until roasted.",
+                             "4. Add lentils, chopped tomatoes, tomato paste, sugar, vegetable broth, and nutritional yeast. Stir well, bring to a boil, and simmer over medium heat for about 15 minutes, stirring occasionally.",
+                             "5. Serve the sauce over the pasta and garnish with extra nutritional yeast or fresh herbs."
+                         ],
+        "tags_public":  [
+                            "pasta",
+                            "dinner",
+                            "high-protein",
+                            "italian-inspired",
+                            "soy-free"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "english"
+                          ],
+        "upvotes":  11,
+        "downvotes":  3,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "3",
+        "title":  "Vegetable Paella",
+        "time":  60,
+        "imagePath":  "paella.jpg",
+        "imageAlt":  "Colorful vegan paella in a pan",
+        "ingredients":  [
+                            "125g topping (e.g., firm tofu cubes)",
+                            "2 medium red onions",
+                            "4 garlic cloves",
+                            "1 red bell pepper",
+                            "160g paella rice or risotto rice",
+                            "2 tsp smoked paprika",
+                            "1 tsp turmeric",
+                            "600ml vegetable broth",
+                            "8 cherry tomatoes",
+                            "100g peas (fresh or frozen)",
+                            "Fresh parsley for garnish",
+                            "Lemon wedges"
+                        ],
+        "instructions":  [
+                             "1. Fry the tofu topping in a little oil until golden brown, then remove from the pan and set aside.",
+                             "2. Dice onions, garlic, and bell pepper. Sauté them in the same pan with oil until soft and translucent.",
+                             "3. Add the rice and spices (paprika, turmeric), stir well, and fry for a few minutes.",
+                             "4. Pour in the vegetable broth and stir once to distribute everything evenly.",
+                             "5. From this point on, avoid stirring. Bring to a boil and cook for about 10 minutes.",
+                             "6. Reduce heat. Distribute cherry tomatoes, the fried topping, and peas on top and press them lightly into the rice. Partially cover and simmer for another 10 minutes.",
+                             "7. Once the liquid is absorbed, check if a crust (socarrat) has formed at the bottom using a spoon.",
+                             "8. Remove from heat, let it rest briefly, and serve garnished with parsley and lemon wedges."
+                         ],
+        "tags_public":  [
+                            "rice",
+                            "spanish-inspired",
+                            "gluten-free",
+                            "dinner",
+                            "one-pot"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "english"
+                          ],
+        "upvotes":  4,
+        "downvotes":  6,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "4",
+        "title":  "Cremige Linsenpfanne",
+        "time":  35,
+        "imagePath":  "linsenpfanne.jpg",
+        "imageAlt":  "Cremige rote Linsenpfanne serviert in einer Pfanne",
+        "ingredients":  [
+                            "2 kleine rote Zwiebeln",
+                            "1 rote Paprika",
+                            "2-3 Knoblauchzehen",
+                            "2 EL getrockneter Oregano",
+                            "Frische Petersilie",
+                            "2 EL Sojasauce",
+                            "1 EL Balsamico-Essig",
+                            "190g rote Linsen (trocken)",
+                            "500ml Gemüsebrühe",
+                            "30ml vegane Kochsahne (z.B. Sojasahne)",
+                            "½ EL Speisestärke",
+                            "Salz, Pfeffer, Chilipulver"
+                        ],
+        "instructions":  [
+                             "1. Linsen kurz abspülen. (Bei Verwendung von Tellerlinsen diese vorher einweichen, bei roten Linsen nicht nötig).",
+                             "2. Zwiebeln, Knoblauch und Paprika kleinschneiden. In einer Pfanne mit etwas Öl, Salz, Pfeffer und Chili für 3-5 Minuten anbraten.",
+                             "3. Oregano, Sojasauce und Essig hinzugeben und kurz weiterbraten.",
+                             "4. Linsen und Gemüsebrühe hinzufügen. Köcheln lassen, bis die Flüssigkeit größtenteils aufgenommen ist (ca. 15-20 Min).",
+                             "5. Vegane Sahne und Speisestärke in einer kleinen Schüssel glatt rühren, in die Pfanne geben und kurz aufkochen lassen, bis die Sauce bindet.",
+                             "6. Mit frischer Petersilie garnieren und einer Beilage nach Wahl (z.B. Kartoffeln) servieren."
+                         ],
+        "tags_public":  [
+                            "linsen",
+                            "high-protein",
+                            "einfach",
+                            "abendessen",
+                            "glutenfrei"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "german"
+                          ],
+        "upvotes":  15,
+        "downvotes":  1,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "5",
+        "title":  "White Bean \u0026 Apple Skillet",
+        "time":  25,
+        "imagePath":  "bohnen_apfel_pfanne.jpg",
+        "imageAlt":  "White beans and apple pieces with smoked tofu in a bowl",
+        "ingredients":  [
+                            "1 onion",
+                            "200g smoked tofu",
+                            "1 tbsp soy sauce",
+                            "400g white beans (canned, drained)",
+                            "100ml vegetable broth",
+                            "2 apples",
+                            "2 tbsp cashew butter (or almond butter)",
+                            "Salt and pepper",
+                            "Fresh herbs and seeds for topping"
+                        ],
+        "instructions":  [
+                             "1. Cut the smoked tofu, onion, and apples into small, bite-sized pieces.",
+                             "2. Sauté the onion and smoked tofu in a pan with a little oil until lightly browned.",
+                             "3. Add the vegetable broth, soy sauce, apple pieces, cashew butter, and white beans to the pan. Season with salt and pepper.",
+                             "4. Heat everything thoroughly gently stirring until the sauce is creamy.",
+                             "5. Serve immediately, garnished with herbs and seeds."
+                         ],
+        "tags_public":  [
+                            "beans",
+                            "quick",
+                            "fruity",
+                            "gluten-free",
+                            "healthy"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "english"
+                          ],
+        "upvotes":  8,
+        "downvotes":  2,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "6",
+        "title":  "Knuspriger Flammkuchen",
+        "time":  25,
+        "imagePath":  "flammkuchen.jpg",
+        "imageAlt":  "Knuspriger Flammkuchen mit roten Zwiebeln und Räuchertofu",
+        "ingredients":  [
+                            "1 Rolle Flammkuchenteig (vegan)",
+                            "50g Creme Vega (veganer Schmand)",
+                            "25g Sojajoghurt (ungesüßt)",
+                            "½ rote Zwiebel",
+                            "60g Räuchertofu",
+                            "½ rote Paprika",
+                            "Eine Prise Muskat",
+                            "Salz und Pfeffer",
+                            "Frische Petersilie"
+                        ],
+        "instructions":  [
+                             "1. Den Backofen vorheizen (gemäß Packungsanweisung des Teigs, meist ca. 220°C).",
+                             "2. Creme Vega mit dem Sojajoghurt vermengen und mit Salz, Pfeffer und Muskat abschmecken.",
+                             "3. Die Zwiebel in feine Halbringe schneiden. Den Räuchertofu und die Paprika in kleine Würfel oder Streifen schneiden.",
+                             "4. Den Teig ausrollen und mit der Creme bestreichen. Mit Zwiebeln, Paprika und Räuchertofu belegen. Optional mit etwas Öl beträufeln.",
+                             "5. Im Ofen ca. 10-15 Minuten goldbraun backen.",
+                             "6. Vor dem Servieren mit frischer Petersilie bestreuen."
+                         ],
+        "tags_public":  [
+                            "backen",
+                            "herzhaft",
+                            "party",
+                            "abendessen",
+                            "elsass"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "german"
+                          ],
+        "upvotes":  32,
+        "downvotes":  0,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "7",
+        "title":  "Chili Sin Carne",
+        "time":  45,
+        "imagePath":  "chili_sin_carne.jpg",
+        "imageAlt":  "Bowl of red chili sin carne with rice and parsley",
+        "ingredients":  [
+                            "2 medium red onions",
+                            "1 tsp turmeric",
+                            "1 large red bell pepper",
+                            "125g dry soy granules (or 250g ready vegan mince)",
+                            "50g tomato paste",
+                            "2 cans kidney beans (drained)",
+                            "1 can corn (drained)",
+                            "1.5 cans chopped tomatoes",
+                            "2 tsp brown sugar",
+                            "2 tsp smoked paprika",
+                            "2 tsp sweet paprika",
+                            "400ml vegetable broth",
+                            "2 tbsp nutritional yeast",
+                            "2 tsp cumin",
+                            "150g bulgur or rice",
+                            "Salt, pepper, chili powder, garlic powder"
+                        ],
+        "instructions":  [
+                             "1. If using dry soy granules, prepare them according to package instructions (soak/boil). Prepare the rice or bulgur separately.",
+                             "2. Sauté the soy granules (or mince) with diced onions, garlic, turmeric, and oil at high heat to create roasted flavors.",
+                             "3. Stir in the tomato paste and paprika spices, roasting briefly.",
+                             "4. Deglaze with a small amount of vegetable broth to loosen bits from the bottom of the pan.",
+                             "5. Add the kidney beans, corn, chopped tomatoes, sugar, nutritional yeast, remaining broth, and cumin.",
+                             "6. Stir well, bring to a boil, and let simmer on low heat until the desired consistency is reached (approx. 20 mins). Season to taste.",
+                             "7. Serve with the cooked rice/bulgur and garnish with parsley."
+                         ],
+        "tags_public":  [
+                            "stew",
+                            "spicy",
+                            "meal-prep",
+                            "high-protein",
+                            "gluten-free"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "english"
+                          ],
+        "upvotes":  45,
+        "downvotes":  2,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "8",
+        "title":  "Cremige Gemüse-Pasta",
+        "time":  20,
+        "imagePath":  "cremige_gemuesepasta.jpg",
+        "imageAlt":  "Penne Pasta mit Brokkoli in cremiger Sauce",
+        "ingredients":  [
+                            "1 Kopf Brokkoli",
+                            "2 EL Pinienkerne",
+                            "2 Knoblauchzehen",
+                            "125g Kirschtomaten",
+                            "2 EL italienische Kräuter (TK oder getrocknet)",
+                            "2 TL Ahornsirup",
+                            "100g vegane Sahne (z.B. Soja Cuisine)",
+                            "2 EL Limettensaft",
+                            "1 Bund Basilikum",
+                            "125g Pasta (z.B. Penne)",
+                            "Salz, Pfeffer"
+                        ],
+        "instructions":  [
+                             "1. Brokkoli in kleine Röschen schneiden und waschen. Pasta nach Packungsanweisung kochen.",
+                             "2. Pinienkerne in einer Pfanne ohne Öl goldbraun anrösten und beiseitestellen.",
+                             "3. Brokkoli mit ca. 100ml gesalzenem Wasser in die Pfanne geben, aufkochen und zugedeckt 4 Minuten dünsten.",
+                             "4. Gehackten Knoblauch, halbierte Tomaten und italienische Kräuter hinzufügen. Weiter dünsten, bis der Brokkoli bissfest ist und das Wasser verdampft ist.",
+                             "5. Ahornsirup, vegane Sahne und Limettensaft unterrühren und kurz einkochen lassen, bis die Sauce sämig ist.",
+                             "6. Mit Salz, Pfeffer und frischem Basilikum abschmecken. Mit Pasta vermengen und mit Pinienkernen toppen."
+                         ],
+        "tags_public":  [
+                            "pasta",
+                            "schnell",
+                            "gemüse",
+                            "cremig",
+                            "mittagsessen"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "german"
+                          ],
+        "upvotes":  13,
+        "downvotes":  0,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "9",
+        "title":  "Zwiebelmett (Reiswaffel-Art)",
+        "time":  10,
+        "imagePath":  "veganes_mett.jpg",
+        "imageAlt":  "Veganes Zwiebelmett auf einem Brötchen",
+        "ingredients":  [
+                            "100g Reiswaffeln (ungesalzen)",
+                            "1 Zwiebel",
+                            "400-500ml lauwarmes Wasser",
+                            "4 EL Tomatenmark",
+                            "2 TL Salz",
+                            "Pfeffer nach Geschmack"
+                        ],
+        "instructions":  [
+                             "1. Die Reiswaffeln in eine Schüssel bröseln. Das Wasser hinzugeben und kurz einziehen lassen, bis die Waffeln weich sind.",
+                             "2. Die eingeweichten Waffeln mit einer Gabel zu einer gleichmäßigen Masse zerdrücken.",
+                             "3. Tomatenmark und fein gewürfelte Zwiebeln unterrühren. Kräftig mit Salz und Pfeffer abschmecken.",
+                             "4. Für das beste Geschmackserlebnis das vegane Mett für einige Stunden oder über Nacht im Kühlschrank ziehen lassen. Auf frischem Brot oder Brötchen servieren."
+                         ],
+        "tags_public":  [
+                            "aufstrich",
+                            "frühstück",
+                            "herzhaft",
+                            "low-fat",
+                            "klassiker"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "german"
+                          ],
+        "upvotes":  55,
+        "downvotes":  8,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "10",
+        "title":  "One-Pot Vegetable Orzotto",
+        "time":  40,
+        "imagePath":  "orzotto.jpg",
+        "imageAlt":  "Tomato based orzo dish with peppers and tofu",
+        "ingredients":  [
+                            "3 bell peppers (mixed colors)",
+                            "1 onion",
+                            "100g cherry tomatoes",
+                            "200g smoked tofu (or mushrooms)",
+                            "500ml tomato passata",
+                            "700ml water",
+                            "400-500g orzo pasta (risoni)",
+                            "2-3 tbsp soy sauce",
+                            "2 tsp turmeric",
+                            "1 tsp smoked paprika",
+                            "1 tsp cinnamon (optional)",
+                            "Nutritional yeast",
+                            "Fresh basil and parsley"
+                        ],
+        "instructions":  [
+                             "1. Preheat oven to 180°C. Roughly chop peppers, onion, and fresh tomatoes. Toss with oil, salt, and pepper in a baking dish and roast for 25 minutes until soft.",
+                             "2. Meanwhile, dice the smoked tofu (or mushrooms). Sauté in a large pot or deep pan with oil, garlic, and turmeric until browned.",
+                             "3. Add the passata, water, and uncooked orzo to the pot. Let simmer uncovered until the liquid absorbs and pasta is cooked (stir frequently to prevent sticking).",
+                             "4. Once the pasta is ready, stir in the roasted vegetables from the oven, soy sauce, and remaining spices.",
+                             "5. Season to taste and serve garnished with fresh chopped herbs."
+                         ],
+        "tags_public":  [
+                            "pasta",
+                            "one-pot",
+                            "dinner",
+                            "comfort-food",
+                            "italian-fusion"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "english"
+                          ],
+        "upvotes":  9,
+        "downvotes":  1,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "11",
+        "title":  "Tortilla Chili Casserole",
+        "time":  45,
+        "imagePath":  "tortilla_casserole.jpg",
+        "imageAlt":  "Casserole dish filled with rice, beans, and topped with tortilla chips",
+        "ingredients":  [
+                            "200g cooked rice",
+                            "250g vegan mince (or hydrated soy granules)",
+                            "1 large onion",
+                            "1 large bell pepper",
+                            "1 zucchini",
+                            "2 cans chopped tomatoes",
+                            "1 can kidney beans (drained)",
+                            "1 can corn (drained)",
+                            "200ml salsa sauce",
+                            "100g vegan shredded cheese",
+                            "Tortilla chips for topping"
+                        ],
+        "instructions":  [
+                             "1. Preheat oven to 180°C (convection).",
+                             "2. Sauté the diced onion and vegan mince in a pan with oil until browned. Transfer to a large mixing bowl.",
+                             "3. Dice the bell pepper and zucchini, sauté briefly in the same pan, and add to the bowl.",
+                             "4. Add the chopped tomatoes, corn, kidney beans, and salsa to the bowl. Mix everything thoroughly.",
+                             "5. Spread the cooked rice at the bottom of a greased casserole dish. Pour the vegetable-mince mixture over the rice.",
+                             "6. Top with vegan cheese and a layer of tortilla chips.",
+                             "7. Bake for 20 minutes until the cheese melts and chips are crispy."
+                         ],
+        "tags_public":  [
+                            "casserole",
+                            "mexican-inspired",
+                            "family-meal",
+                            "oven-baked",
+                            "gluten-free"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "english"
+                          ],
+        "upvotes":  22,
+        "downvotes":  3,
+        "submittedBy":  "FoodieFlip"
+    },
+    {
+        "id":  "12",
+        "title":  "Broccoli \u0026 Chickpea Stir-Fry",
+        "time":  25,
+        "imagePath":  "broccoli_chickpea_stirfry.jpg",
+        "imageAlt":  "Glossy stir-fry with broccoli and chickpeas over rice",
+        "ingredients":  [
+                            "1 red onion",
+                            "5 garlic cloves",
+                            "1 tbsp minced ginger",
+                            "1 tsp onion powder",
+                            "1 tsp paprika",
+                            "½ tsp smoked paprika",
+                            "1 head of broccoli",
+                            "80ml vegetable broth",
+                            "1 can chickpeas (drained)",
+                            "Cooked rice for serving",
+                            "Sauce: 120ml water, 3 tbsp soy sauce, 1.5 tbsp rice vinegar, 2 tbsp maple syrup, 1 tbsp cornstarch"
+                        ],
+        "instructions":  [
+                             "1. Whisk together the sauce ingredients (water, soy sauce, vinegar, syrup, cornstarch) in a small bowl and set aside.",
+                             "2. Finely chop onion, garlic, and ginger. Sauté in a pan with the dry spices and a little oil over medium heat until fragrant.",
+                             "3. Cut broccoli into florets. Add to the pan along with the vegetable broth. Cover and steam/fry for about 10 minutes until broccoli is tender-crisp.",
+                             "4. Give the sauce a quick whisk and pour it into the pan. Add the drained chickpeas.",
+                             "5. Increase heat slightly and stir constantly until the sauce bubbles and thickens (approx. 2-3 minutes).",
+                             "6. Serve hot over cooked rice."
+                         ],
+        "tags_public":  [
+                            "asian-inspired",
+                            "healthy",
+                            "vegetables",
+                            "quick",
+                            "gluten-free"
+                        ],
+        "tags_internal":  [
+                              "ai-image",
+                              "english"
+                          ],
+        "upvotes":  18,
+        "downvotes":  0,
+        "submittedBy":  "FoodieFlip"
+    }
 ]
