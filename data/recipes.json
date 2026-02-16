@@ -1,0 +1,125 @@
+[
+  {
+    "id": "1",
+    "title": "Bananenbrot",
+    "time": 20,
+    "imagePath": "bananenbrot.jpg",
+    "imageAlt": "Bananenbrot",
+    "ingredients": [
+      "3 reife Bananen (ca. 330g geschält)",
+      "100ml neutrales Öl (z.B. Rapsöl)",
+      "100ml Vanille-Pflanzenmilch ",
+      "1 Tüte Vanillezucker",
+      "200g (Vollkorn-)Mehl",
+      "150g Rohrohrzucker",
+      "75g gehackte Walnusskerne",
+      "2 TL Backpulver",
+      "¼ TL Salz",
+      "1 EL Speisestärke"
+    ],
+    "instructions": [
+      "1. Backofen auf 180° (Ober-Unterhitze)",
+      "2. Vermatschen: Bananen, Öl, pflanzliche Milch und Vanille, aber nicht zu fein pürieren",
+      "3. Trockene Zutaten dazu: Mehl, Zucker, Backpulver, Salz, Speisestärke und Teig gut umrühren",
+      "4. Teig in (gefettete) Backform füllen und bis zu 60 Minuten backen, ggf. mit Stäbchen probieren ob gar"
+    ],
+    "tags_public": [
+      "cake",
+      "bake",
+      "gluten",
+      "soy-free"
+    ],
+    "tags_internal": [
+      "ai-image",
+      "german"
+    ],
+    "upvotes": 19,
+    "downvotes": 14
+  },
+  {
+    "id": "2",
+    "title": "Lentil Bolognese",
+    "time": 40,
+    "imagePath": "lentil_bolognese.jpg",
+    "imageAlt": "Lentil Bolognese",
+    "ingredients": [
+      "125g red lentils",
+      "1 large onion",
+      "1 tsp turmeric*",
+      "1 carrot",
+      "1 celery stalk or 1 bell pepper",
+      "100g mushrooms",
+      "2 garlic cloves",
+      "2 tbsp tomato paste",
+      "1 can chopped tomatoes",
+      "1 tsp (brown) sugar",
+      "275ml vegetable broth",
+      "2 tbsp nutritional yeast*",
+      "3 tsp 'Italian herbs'*",
+      "Salt, pepper*",
+      "Nutritional yeast, fresh herbs**",
+      "125g pasta of choice"
+    ],
+    "instructions": [
+      "1. Cook the pasta, you can do it.",
+      "2. Meanwhile, sauté onions with garlic and turmeric in some oil until translucent.",
+      "3. Add vegetables, spices, and mushrooms, and sauté for 5-10 minutes depending on how roasted you want them.",
+      "4. Add lentils, tomatoes (and paste), sugar, vegetable broth, and nutritional yeast. Stir, bring to a boil, and then simmer over medium heat for 15 minutes, stirring occasionally.",
+      "5. Serve with pasta and garnish with nutritional yeast or herbs."
+    ],
+    "tags_public": [
+      "legumes",
+      "pasta",
+      "gluten",
+      "soy-free"
+    ],
+    "tags_internal": [
+      "ai-image",
+      "english"
+    ],
+    "upvotes": 10,
+    "downvotes": 3
+  },
+  {
+    "id": "3",
+    "title": "Paella",
+    "time": 60,
+    "imagePath": "paella.jpg",
+    "imageAlt": "Paella",
+    "ingredients": [
+      "125g topping (e.g., tofu)",
+      "2 medium-sized (red) onions",
+      "4 garlic cloves",
+      "1 (red) bell pepper",
+      "160g paella or risotto rice",
+      "2 tsp smoked paprika*",
+      "1 tsp turmeric*",
+      "600ml vegetable broth",
+      "8 cherry tomatoes",
+      "100g peas (fresh/frozen)",
+      "Fresh parsley**",
+      "Lemons, quartered**"
+    ],
+    "instructions": [
+      "1. Fry the topping in some oil until golden brown and remove from the pan.",
+      "2. Sauté onions, garlic, and bell pepper in some oil until the onions are soft and translucent.",
+      "3. Add the rice and spices, stir well, and continue frying for a few minutes.",
+      "4. Add vegetable broth and stir again to distribute everything evenly.",
+      "5. From this point, do not stir anymore, or it will turn into risotto. Bring the paella to a boil for about 10 minutes.",
+      "6. Reduce the heat, then distribute tomatoes, topping, and peas on the paella and press them in lightly. Partially cover the pan and let the paella simmer for 10 minutes.",
+      "7. Once there is hardly any liquid visible, use a small spoon to check if a 'crust' has formed at the bottom of the pan.",
+      "8. If the 'crust' is satisfactory, remove the pan from the heat, let it rest briefly, and serve garnished."
+    ],
+    "tags_public": [
+      "rice",
+      "gluten-free",
+      "soy-free"
+    ],
+    "tags_internal": [
+      "ai-image",
+      "english"
+    ],
+    "upvotes": 4,
+    "downvotes": 4
+  }
+]

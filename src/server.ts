@@ -6,7 +6,7 @@ import path from "path";
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/api/images", express.static(path.join(__dirname, "data/img")));
+app.use("/api/images", express.static(path.join(process.cwd(), "data/img")));
 
 // Routes
 // possibility to add further sub-files later

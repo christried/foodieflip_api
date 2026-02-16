@@ -1,8 +1,12 @@
 import { Router, Request, Response } from "express";
-import recipes from "../data/recipes.json";
 import { Recipe } from "../recipe.model";
+import * as fs from "fs";
+import * as path from "path";
 
 export const recipeRouter = Router();
+const recipes = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), "data/recipes.json"), "utf-8"),
+);
 
 // In-memory data store
 // to be replaced with a real database
@@ -12,17 +16,6 @@ let recipeList = [...recipes];
 recipeRouter.get("/", (_req: Request, res: Response) => {
   res.json(recipeList);
 });
-
-// GET /api/recipes/:id
-// recipeRouter.get("/:id", (req: Request, res: Response) => {
-//   const recipe = recipeList.find((r) => r.id === req.params.id);
-//   if (!recipe) {
-//     res.status(404).json({ error: "Recipe not found" });
-//     return;
-//   }
-
-//   res.json(recipe);
-// });
 
 // GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
@@ -49,4 +42,52 @@ recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
   };
 
   res.json(recipeWithImage);
+});
+
+// PATCH /api/recipes/vote
+recipeRouter.patch("/vote", (req: Request, res: Response) => {
+  const id = req.body.id;
+  const voteType = req.body.voteType;
+
+  if (voteType !== "upvote" && voteType !== "downvote") {
+    res.status(400).json({
+      error: "Invalid vote type. Must be 'upvote' or 'downvote'.",
+    });
+    return;
+  }
+
+  // Find recipe in memory
+  const recipe = recipeList.find((r) => r.id === id);
+  if (!recipe) {
+    res.status(404).json({ error: `Recipe with id ${id} doesn't exist` });
+    return;
+  }
+
+  if (voteType === "upvote") {
+    recipe.upvotes++;
+  } else {
+    recipe.downvotes++;
+  }
+
+  // Persist to file
+  try {
+    const filePath = path.join(process.cwd(), "data", "recipes.json");
+    fs.writeFileSync(filePath, JSON.stringify(recipeList, null, 2), "utf-8");
+
+    res.json({
+      message: `Successfully ${voteType}d recipe`,
+      recipe: {
+        id: recipe.id,
+        title: recipe.title,
+        upvotes: recipe.upvotes,
+        downvotes: recipe.downvotes,
+      },
+    });
+  } catch (error) {
+    console.error("File write error:", error);
+    res.status(500).json({
+      error: "Failed to persist vote in storage",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 });
