@@ -4,6 +4,7 @@ export interface Recipe {
   time: number;
   imagePath: string;
   imageUrl?: string;
+  fullsizeUrl?: string;
   imageAlt: string;
   ingredients: string[];
   instructions: string[];
@@ -11,4 +12,5 @@ export interface Recipe {
   tags_internal: string[];
   upvotes: number;
   downvotes: number;
+  submittedBy: string;
 }

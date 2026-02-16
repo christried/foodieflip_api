@@ -35,10 +35,12 @@ recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
   }
 
   const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+  const fullsizePath = randomRecipe.imagePath.replace(".jpg", "_fullsize.jpg");
 
   const recipeWithImage = {
     ...randomRecipe,
     imageUrl: `${req.protocol}://${req.get("host")}/api/images/${randomRecipe.id}/${randomRecipe.imagePath}`,
+    fullsizeUrl: `${req.protocol}://${req.get("host")}/api/images/${randomRecipe.id}/${fullsizePath}`,
   };
 
   res.json(recipeWithImage);

@@ -33,8 +33,9 @@
       "ai-image",
       "german"
     ],
-    "upvotes": 19,
-    "downvotes": 14
+    "upvotes": 20,
+    "downvotes": 14,
+    "submittedBy": "FoodieFlip"
   },
   {
     "id": "2",
@@ -77,8 +78,9 @@
       "ai-image",
       "english"
     ],
-    "upvotes": 10,
-    "downvotes": 3
+    "upvotes": 11,
+    "downvotes": 3,
+    "submittedBy": "FoodieFlip"
   },
   {
     "id": "3",
@@ -120,6 +122,7 @@
       "english"
     ],
     "upvotes": 4,
-    "downvotes": 4
+    "downvotes": 6,
+    "submittedBy": "FoodieFlip"
   }
 ]
