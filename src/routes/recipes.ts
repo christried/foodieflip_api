@@ -20,6 +20,11 @@ recipeRouter.get("/", (_req: Request, res: Response) => {
 // GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
   const complexity = req.params.complexity;
+  const latestRecipeId = req.query.id as string | undefined;
+
+  if (latestRecipeId) {
+    console.log(latestRecipeId);
+  }
   const maxTime =
     complexity === "quick" ? 20 : complexity === "ordinary" ? 45 : 999;
 
@@ -27,7 +32,7 @@ recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
     complexity === "quick" ? 0 : complexity === "ordinary" ? 21 : 46;
 
   const recipes: Recipe[] = recipeList.filter(
-    (r) => r.time <= maxTime && r.time >= minTime,
+    (r) => r.time <= maxTime && r.time >= minTime && r.id != latestRecipeId,
   );
   if (recipes.length === 0) {
     res.status(404).json({ error: "No recipe for that timeType found" });
