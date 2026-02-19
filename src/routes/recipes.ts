@@ -26,10 +26,10 @@ recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
     console.log(latestRecipeId);
   }
   const maxTime =
-    complexity === "quick" ? 20 : complexity === "ordinary" ? 45 : 999;
+    complexity === "quick" ? 20 : complexity === "ordinary" ? 40 : 999;
 
   const minTime =
-    complexity === "quick" ? 0 : complexity === "ordinary" ? 21 : 46;
+    complexity === "quick" ? 0 : complexity === "ordinary" ? 21 : 41;
 
   const recipes: Recipe[] = recipeList.filter(
     (r) => r.time <= maxTime && r.time >= minTime && r.id != latestRecipeId,
