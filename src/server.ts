@@ -4,6 +4,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { recipeRouter } from "./routes/recipes";
 import { feedbackRouter } from "./routes/feedback";
+import { submitRouter } from "./routes/submit";
 import path from "path";
 import dotenv from "dotenv";
 
@@ -29,7 +30,7 @@ app.use(
         callback(new Error(`CORS: origin ${origin} not allowed`));
       }
     },
-    methods: ["GET", "POST", "PATCH", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 204,
   }),
@@ -64,6 +65,7 @@ app.use(
 // possibility to add further sub-files later
 app.use("/api/recipes", recipeRouter);
 app.use("/api/feedback", feedbackRouter);
+app.use("/api/submit", submitRouter);
 
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
@@ -74,4 +76,5 @@ app.listen(PORT, () => {
   console.log(`FoodieFlip API server running at http://localhost:${PORT}`);
   console.log(`For Recipes Try: http://localhost:${PORT}/api/recipes`);
   console.log(`For Feedback Try: http://localhost:${PORT}/api/feedback`);
+  console.log(`For Submissions Try: http://localhost:${PORT}/api/submit`);
 });
