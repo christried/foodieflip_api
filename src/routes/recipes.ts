@@ -22,9 +22,9 @@ recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
   const complexity = req.params.complexity;
   const latestRecipeId = req.query.id as string | undefined;
 
-  if (latestRecipeId) {
-    console.log(latestRecipeId);
-  }
+  // if (latestRecipeId) {
+  //   console.log(latestRecipeId);
+  // }
   const maxTime =
     complexity === "quick" ? 20 : complexity === "ordinary" ? 40 : 999;
 
