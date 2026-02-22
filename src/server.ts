@@ -51,7 +51,14 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-app.use("/api/images", express.static(path.join(process.cwd(), "data/img")));
+app.use(
+  "/api/images",
+  (_req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(process.cwd(), "data/img")),
+);
 
 // Routes
 // possibility to add further sub-files later
