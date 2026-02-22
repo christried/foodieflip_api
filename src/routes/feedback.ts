@@ -48,9 +48,6 @@ feedbackRouter.post(
     const name = `Feedback from: ${rawName}`;
     const feedback = rawFeedback;
 
-    // currently not working with any response in frontend so 204 = nocontent is sent for valid requests
-    res.sendStatus(204);
-
     const idList = process.env.TRELLO_FEEDBACK_LIST_ID as string;
     const key = process.env.TRELLO_API_KEY as string;
     const token = process.env.TRELLO_API_TOKEN as string;
@@ -72,8 +69,10 @@ feedbackRouter.post(
 
       const newCard = (await response.json()) as { url: string };
       console.log("Card created successfully. View it here:", newCard.url);
+
+      res.status(200).json("Feedback has been forwarded successfully");
     } catch (error) {
-      console.error("Failed to create Trello card:", error);
+      console.error("Failed to forward Feedback to developer:", error);
     }
   },
 );
