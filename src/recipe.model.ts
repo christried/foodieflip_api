@@ -1,6 +1,7 @@
 export interface Recipe {
   id: string;
   title: string;
+  shortTitle: string;
   time: number;
   imagePath: string;
   imageUrl?: string;
