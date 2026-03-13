@@ -5,7 +5,6 @@ import rateLimit from "express-rate-limit";
 import { recipeRouter } from "./routes/recipes";
 import { feedbackRouter } from "./routes/feedback";
 import { submitRouter } from "./routes/submit";
-import path from "path";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -74,15 +73,6 @@ const globalLimiter = rateLimit({
   message: { error: "Too many requests, please try again later." },
 });
 app.use(globalLimiter);
-
-app.use(
-  "/api/images",
-  (_req, res, next) => {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-  },
-  express.static(path.join(process.cwd(), "data/img")),
-);
 
 // Routes
 // possibility to add further sub-files later

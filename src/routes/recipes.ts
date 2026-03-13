@@ -16,28 +16,17 @@ function isAllowedComplexity(
 }
 
 function buildImageUrls(
-  req: Request,
   recipe: Pick<Recipe, "id" | "imagePath">,
 ) {
-  const cdnBase = process.env["SPACES_CDN_BASE_URL"];
+  const cdnBase = process.env["SPACES_CDN_BASE_URL"] as string;
   const extension = recipe.imagePath.split(".").pop()?.toLowerCase() || "jpg";
   const originalPath = `original.${extension}`;
   const mediumPath = `medium-300w.${extension}`;
-  const fullsizePath = recipe.imagePath.replace(".jpg", "_fullsize.jpg");
 
-  if (cdnBase) {
-    const base = `${cdnBase}/images/${recipe.id}`;
-    return {
-      imageUrl: `${base}/${mediumPath}`,
-      fullsizeUrl: `${base}/${originalPath}`,
-    };
-  }
-
-  // Local fallback — used during development without Spaces configured
-  const base = `${req.protocol}://${req.get("host")}/api/images/${recipe.id}`;
+  const base = `${cdnBase}/images/${recipe.id}`;
   return {
-    imageUrl: `${base}/${recipe.imagePath}`,
-    fullsizeUrl: `${base}/${fullsizePath}`,
+    imageUrl: `${base}/${mediumPath}`,
+    fullsizeUrl: `${base}/${originalPath}`,
   };
 }
 
@@ -75,7 +64,7 @@ recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
   }
 
   const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
-  res.json({ ...randomRecipe, ...buildImageUrls(req, randomRecipe) });
+  res.json({ ...randomRecipe, ...buildImageUrls(randomRecipe) });
 });
 
 // PATCH /api/recipes/vote
@@ -132,5 +121,5 @@ recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
     return;
   }
 
-  res.json({ ...recipe, ...buildImageUrls(req, recipe) });
+  res.json({ ...recipe, ...buildImageUrls(recipe) });
 });
