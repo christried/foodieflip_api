@@ -10,6 +10,24 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Fail fast if required environment variables are missing
+const REQUIRED_ENV_VARS = [
+  "DATABASE_URL",
+  "TRELLO_API_KEY",
+  "TRELLO_API_TOKEN",
+  "TRELLO_NEW_IMAGES_LIST_ID",
+  "TRELLO_NEW_RECIPES_LIST_ID",
+  "TRELLO_FEEDBACK_LIST_ID",
+] as const;
+
+const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+if (missingVars.length > 0) {
+  console.error(
+    `Missing required environment variables: ${missingVars.join(", ")}`
+  );
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env["PORT"] || 3000;
 
