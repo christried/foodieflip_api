@@ -1,54 +1,51 @@
 import { Router, Request, Response } from "express";
-import { Recipe } from "../recipe.model";
-import * as fs from "fs";
-import * as path from "path";
+import { prisma } from "../prisma";
+import { Recipe } from "../generated/prisma";
 
 export const recipeRouter = Router();
-const recipes = JSON.parse(
-  fs.readFileSync(path.join(process.cwd(), "data/recipes.json"), "utf-8"),
-);
 
-// In-memory data store
-// to be replaced with a real database
-let recipeList = [...recipes];
+// Helper function that returns both imageURLs for now - will replace later on after Digital Ocean is running
+function buildImageUrls(
+  req: Request,
+  recipe: Pick<Recipe, "id" | "imagePath">,
+) {
+  const base = `${req.protocol}://${req.get("host")}/api/images/${recipe.id}`;
+  const fullsizePath = recipe.imagePath.replace(".jpg", "_fullsize.jpg");
+  return {
+    imageUrl: `${base}/${recipe.imagePath}`,
+    fullsizeUrl: `${base}/${fullsizePath}`,
+  };
+}
 
 // GET /api/recipes/random/:complexity
-recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
+recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
   const complexity = req.params.complexity;
   const latestRecipeId = req.query.id as string | undefined;
 
-  // if (latestRecipeId) {
-  //   console.log(latestRecipeId);
-  // }
   const maxTime =
     complexity === "quick" ? 20 : complexity === "ordinary" ? 40 : 999;
-
   const minTime =
     complexity === "quick" ? 0 : complexity === "ordinary" ? 21 : 41;
 
-  const recipes: Recipe[] = recipeList.filter(
-    (r) => r.time <= maxTime && r.time >= minTime && r.id != latestRecipeId,
-  );
+  const recipes = await prisma.recipe.findMany({
+    where: {
+      time: { gte: minTime, lte: maxTime },
+      NOT: latestRecipeId ? { id: latestRecipeId } : undefined,
+    },
+  });
+
   if (recipes.length === 0) {
     res.status(404).json({ error: "No recipe for that timeType found" });
     return;
   }
 
   const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
-  const fullsizePath = randomRecipe.imagePath.replace(".jpg", "_fullsize.jpg");
-
-  const recipeWithImage = {
-    ...randomRecipe,
-    imageUrl: `${req.protocol}://${req.get("host")}/api/images/${randomRecipe.id}/${randomRecipe.imagePath}`,
-    fullsizeUrl: `${req.protocol}://${req.get("host")}/api/images/${randomRecipe.id}/${fullsizePath}`,
-  };
-
-  res.json(recipeWithImage);
+  res.json({ ...randomRecipe, ...buildImageUrls(req, randomRecipe) });
 });
 
 // PATCH /api/recipes/vote
-recipeRouter.patch("/vote", (req: Request, res: Response) => {
-  const id = req.body.id;
+recipeRouter.patch("/vote", async (req: Request, res: Response) => {
+  const id = req.body.id as string;
   const voteType = req.body.voteType;
 
   if (voteType !== "upvote" && voteType !== "downvote") {
@@ -58,23 +55,14 @@ recipeRouter.patch("/vote", (req: Request, res: Response) => {
     return;
   }
 
-  // Find recipe in memory
-  const recipe = recipeList.find((r) => r.id === id);
-  if (!recipe) {
-    res.status(404).json({ error: `Recipe with id ${id} doesn't exist` });
-    return;
-  }
-
-  if (voteType === "upvote") {
-    recipe.upvotes++;
-  } else {
-    recipe.downvotes++;
-  }
-
-  // Persist to file
   try {
-    const filePath = path.join(process.cwd(), "data", "recipes.json");
-    fs.writeFileSync(filePath, JSON.stringify(recipeList, null, 2), "utf-8");
+    const recipe = await prisma.recipe.update({
+      where: { id },
+      data: {
+        upvotes: voteType === "upvote" ? { increment: 1 } : undefined,
+        downvotes: voteType === "downvote" ? { increment: 1 } : undefined,
+      },
+    });
 
     res.json({
       message: `Successfully ${voteType}d recipe`,
@@ -85,19 +73,16 @@ recipeRouter.patch("/vote", (req: Request, res: Response) => {
         downvotes: recipe.downvotes,
       },
     });
-  } catch (error) {
-    console.error("File write error:", error);
-    res.status(500).json({
-      error: "Failed to persist vote in storage",
-      details: error instanceof Error ? error.message : "Unknown error",
-    });
+  } catch {
+    res.status(404).json({ error: `Recipe with id ${id} doesn't exist` });
   }
 });
 
 // GET /api/recipes/:shortTitle
-recipeRouter.get("/:shortTitle", (req: Request, res: Response) => {
-  const shortTitle = req.params.shortTitle;
-  const recipe = recipeList.find((r) => r.shortTitle === shortTitle);
+recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
+  const shortTitle = req.params["shortTitle"] as string;
+
+  const recipe = await prisma.recipe.findUnique({ where: { shortTitle } });
   if (!recipe) {
     res
       .status(404)
@@ -105,12 +90,5 @@ recipeRouter.get("/:shortTitle", (req: Request, res: Response) => {
     return;
   }
 
-  const fullsizePath = recipe.imagePath.replace(".jpg", "_fullsize.jpg");
-  const recipeWithImage = {
-    ...recipe,
-    imageUrl: `${req.protocol}://${req.get("host")}/api/images/${recipe.id}/${recipe.imagePath}`,
-    fullsizeUrl: `${req.protocol}://${req.get("host")}/api/images/${recipe.id}/${fullsizePath}`,
-  };
-
-  res.json(recipeWithImage);
+  res.json({ ...recipe, ...buildImageUrls(req, recipe) });
 });
