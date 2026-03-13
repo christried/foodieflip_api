@@ -7,7 +7,9 @@ export const recipeRouter = Router();
 const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
 const RESERVED_RECIPE_SLUGS = new Set(["random", "vote"]);
 
-function isAllowedComplexity(value: string): value is (typeof ALLOWED_COMPLEXITIES)[number] {
+function isAllowedComplexity(
+  value: string,
+): value is (typeof ALLOWED_COMPLEXITIES)[number] {
   return ALLOWED_COMPLEXITIES.includes(
     value as (typeof ALLOWED_COMPLEXITIES)[number],
   );
@@ -18,13 +20,16 @@ function buildImageUrls(
   recipe: Pick<Recipe, "id" | "imagePath">,
 ) {
   const cdnBase = process.env["SPACES_CDN_BASE_URL"];
+  const extension = recipe.imagePath.split(".").pop()?.toLowerCase() || "jpg";
+  const originalPath = `original.${extension}`;
+  const mediumPath = `medium-300w.${extension}`;
   const fullsizePath = recipe.imagePath.replace(".jpg", "_fullsize.jpg");
 
   if (cdnBase) {
     const base = `${cdnBase}/images/${recipe.id}`;
     return {
-      imageUrl: `${base}/${recipe.imagePath}`,
-      fullsizeUrl: `${base}/${fullsizePath}`,
+      imageUrl: `${base}/${mediumPath}`,
+      fullsizeUrl: `${base}/${originalPath}`,
     };
   }
 
@@ -42,7 +47,7 @@ recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
   const complexity =
     typeof complexityParam === "string"
       ? complexityParam
-      : complexityParam?.[0] ?? "";
+      : (complexityParam?.[0] ?? "");
   const latestRecipeId = req.query.id as string | undefined;
 
   if (!isAllowedComplexity(complexity)) {
