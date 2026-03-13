@@ -12,27 +12,6 @@ const recipes = JSON.parse(
 // to be replaced with a real database
 let recipeList = [...recipes];
 
-// GET /api/recipes/:shortTitle
-recipeRouter.get("/:shortTitle", (req: Request, res: Response) => {
-  const shortTitle = req.params.shortTitle;
-  const recipe = recipeList.find((r) => r.shortTitle === shortTitle);
-  if (!recipe) {
-    res
-      .status(404)
-      .json({ error: `Recipe with shortTitle ${shortTitle} doesn't exist` });
-    return;
-  }
-
-  const fullsizePath = recipe.imagePath.replace(".jpg", "_fullsize.jpg");
-  const recipeWithImage = {
-    ...recipe,
-    imageUrl: `${req.protocol}://${req.get("host")}/api/images/${recipe.id}/${recipe.imagePath}`,
-    fullsizeUrl: `${req.protocol}://${req.get("host")}/api/images/${recipe.id}/${fullsizePath}`,
-  };
-
-  res.json(recipeWithImage);
-});
-
 // GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", (req: Request, res: Response) => {
   const complexity = req.params.complexity;
@@ -113,4 +92,25 @@ recipeRouter.patch("/vote", (req: Request, res: Response) => {
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
+});
+
+// GET /api/recipes/:shortTitle
+recipeRouter.get("/:shortTitle", (req: Request, res: Response) => {
+  const shortTitle = req.params.shortTitle;
+  const recipe = recipeList.find((r) => r.shortTitle === shortTitle);
+  if (!recipe) {
+    res
+      .status(404)
+      .json({ error: `Recipe with shortTitle ${shortTitle} doesn't exist` });
+    return;
+  }
+
+  const fullsizePath = recipe.imagePath.replace(".jpg", "_fullsize.jpg");
+  const recipeWithImage = {
+    ...recipe,
+    imageUrl: `${req.protocol}://${req.get("host")}/api/images/${recipe.id}/${recipe.imagePath}`,
+    fullsizeUrl: `${req.protocol}://${req.get("host")}/api/images/${recipe.id}/${fullsizePath}`,
+  };
+
+  res.json(recipeWithImage);
 });
