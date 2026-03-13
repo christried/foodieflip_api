@@ -3,6 +3,7 @@ import multer, { FileFilterCallback } from "multer";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import { uploadToSpaces } from "../utils/spaces";
+import sharp from "sharp";
 
 dotenv.config();
 
@@ -40,6 +41,45 @@ const upload = multer({
 
 function sanitizeFilename(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+function getExtensionFromMimeType(mimeType: string): string {
+  if (mimeType === "image/png") return "png";
+  if (mimeType === "image/webp") return "webp";
+  return "jpg";
+}
+
+function stripExtension(fileName: string): string {
+  return fileName.replace(/\.[^.]+$/, "");
+}
+
+function isValidCuid(value: string): boolean {
+  // Prisma cuid() values are lowercase and start with "c".
+  return /^c[a-z0-9]{24}$/.test(value);
+}
+
+async function createImageVariants(file: Express.Multer.File): Promise<{
+  extension: string;
+  original: Buffer;
+  medium300: Buffer;
+  small100: Buffer;
+}> {
+  const extension = getExtensionFromMimeType(file.mimetype);
+
+  const medium300 = await sharp(file.buffer)
+    .resize({ width: 300, withoutEnlargement: true })
+    .toBuffer();
+
+  const small100 = await sharp(file.buffer)
+    .resize({ width: 100, withoutEnlargement: true })
+    .toBuffer();
+
+  return {
+    extension,
+    original: file.buffer,
+    medium300,
+    small100,
+  };
 }
 
 // Trello helper functions
@@ -102,8 +142,10 @@ submitRouter.put(
   async (req: Request, res: Response) => {
     const recipeId = (req.body as { recipeId?: string }).recipeId ?? "";
 
-    if (!/^\d+$/.test(recipeId)) {
-      res.status(400).json({ message: "Missing or invalid recipeId" });
+    if (!isValidCuid(recipeId)) {
+      res.status(400).json({
+        message: "Missing or invalid recipeId (must be a valid CUID)",
+      });
       return;
     }
 
@@ -113,14 +155,27 @@ submitRouter.put(
     }
 
     const idList = process.env["TRELLO_NEW_IMAGES_LIST_ID"] as string;
-    const cardName = `New Image for Recipe #${recipeId}`;
+  const cardName = `New Image for Recipe ${recipeId}`;
 
     try {
-      const safeFilename = sanitizeFilename(req.file.originalname);
-      const spacesKey = `submissions/images/${recipeId}/${Date.now()}-${safeFilename}`;
-      const spacesUrl = await uploadToSpaces(req.file.buffer, spacesKey, req.file.mimetype);
+      const safeFileBaseName = stripExtension(
+        sanitizeFilename(req.file.originalname),
+      );
+      const timestamp = Date.now();
+      const variantRoot = `submissions/images/${recipeId}/${timestamp}-${safeFileBaseName}`;
 
-      const cardDesc = `Original filename: ${req.file.originalname}\nMIME type: ${req.file.mimetype}\nSize: ${req.file.size} bytes\nSpaces URL: ${spacesUrl}`;
+      const variants = await createImageVariants(req.file);
+      const originalKey = `${variantRoot}/original.${variants.extension}`;
+      const mediumKey = `${variantRoot}/medium-300w.${variants.extension}`;
+      const smallKey = `${variantRoot}/small-100w.${variants.extension}`;
+
+      const [originalUrl, mediumUrl, smallUrl] = await Promise.all([
+        uploadToSpaces(req.file.buffer, originalKey, req.file.mimetype),
+        uploadToSpaces(variants.medium300, mediumKey, req.file.mimetype),
+        uploadToSpaces(variants.small100, smallKey, req.file.mimetype),
+      ]);
+
+      const cardDesc = `Original filename: ${req.file.originalname}\nMIME type: ${req.file.mimetype}\nSize: ${req.file.size} bytes\nOriginal URL: ${originalUrl}\nMedium URL (300w): ${mediumUrl}\nSmall URL (100w): ${smallUrl}`;
       const newCard = await createTrelloCard(idList, cardName, cardDesc);
       await attachImageToTrelloCard(newCard.id, req.file);
 
@@ -210,16 +265,32 @@ submitRouter.post(
     );
 
     try {
-      let spacesUrl: string | undefined;
+      let originalUrl: string | undefined;
+      let mediumUrl: string | undefined;
+      let smallUrl: string | undefined;
+
       if (req.file) {
-        const safeFilename = sanitizeFilename(req.file.originalname);
-        const spacesKey = `submissions/recipes/${Date.now()}-${safeFilename}`;
-        spacesUrl = await uploadToSpaces(req.file.buffer, spacesKey, req.file.mimetype);
+        const safeFileBaseName = stripExtension(
+          sanitizeFilename(req.file.originalname),
+        );
+        const timestamp = Date.now();
+        const variantRoot = `submissions/recipes/${timestamp}-${safeFileBaseName}`;
+
+        const variants = await createImageVariants(req.file);
+        const originalKey = `${variantRoot}/original.${variants.extension}`;
+        const mediumKey = `${variantRoot}/medium-300w.${variants.extension}`;
+        const smallKey = `${variantRoot}/small-100w.${variants.extension}`;
+
+        [originalUrl, mediumUrl, smallUrl] = await Promise.all([
+          uploadToSpaces(req.file.buffer, originalKey, req.file.mimetype),
+          uploadToSpaces(variants.medium300, mediumKey, req.file.mimetype),
+          uploadToSpaces(variants.small100, smallKey, req.file.mimetype),
+        ]);
       }
 
       const cardDesc =
-        req.file && spacesUrl
-          ? `Image: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)\nSpaces URL: ${spacesUrl}\n\n\`\`\`json\n${recipeJson}\n\`\`\``
+        req.file && originalUrl && mediumUrl && smallUrl
+          ? `Image: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)\nOriginal URL: ${originalUrl}\nMedium URL (300w): ${mediumUrl}\nSmall URL (100w): ${smallUrl}\n\n\`\`\`json\n${recipeJson}\n\`\`\``
           : `\`\`\`json\n${recipeJson}\n\`\`\``;
 
       const newCard = await createTrelloCard(idList, cardName, cardDesc);

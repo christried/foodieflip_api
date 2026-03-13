@@ -23,6 +23,7 @@ export async function uploadToSpaces(
       Key: key,
       Body: buffer,
       ContentType: contentType,
+      CacheControl: "public, max-age=31536000, immutable",
       ACL: "public-read",
     }),
   );
