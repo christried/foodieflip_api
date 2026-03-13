@@ -250,7 +250,9 @@ submitRouter.post(
         id: "TBD",
         title,
         time,
-        imagePath: req.file ? req.file.originalname : "TBD",
+        imageExtension: req.file
+          ? getExtensionFromMimeType(req.file.mimetype)
+          : "jpg",
         imageAlt: "TBD",
         ingredients,
         instructions,

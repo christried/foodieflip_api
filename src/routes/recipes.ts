@@ -16,18 +16,23 @@ function isAllowedComplexity(
 }
 
 function buildImageUrls(
-  recipe: Pick<Recipe, "id" | "imagePath">,
+  recipe: Pick<Recipe, "id" | "imageExtension">,
 ) {
   const cdnBase = process.env["SPACES_CDN_BASE_URL"] as string;
-  const extension = recipe.imagePath.split(".").pop()?.toLowerCase() || "jpg";
+  const extension = recipe.imageExtension.toLowerCase() || "jpg";
   const originalPath = `original.${extension}`;
   const mediumPath = `medium-300w.${extension}`;
 
   const base = `${cdnBase}/images/${recipe.id}`;
   return {
+    imageExtension: extension,
     imageUrl: `${base}/${mediumPath}`,
     fullsizeUrl: `${base}/${originalPath}`,
   };
+}
+
+function toPublicRecipe(recipe: Recipe) {
+  return { ...recipe, ...buildImageUrls(recipe) };
 }
 
 // GET /api/recipes/random/:complexity
@@ -64,7 +69,7 @@ recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
   }
 
   const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
-  res.json({ ...randomRecipe, ...buildImageUrls(randomRecipe) });
+  res.json(toPublicRecipe(randomRecipe));
 });
 
 // PATCH /api/recipes/vote
@@ -121,5 +126,5 @@ recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
     return;
   }
 
-  res.json({ ...recipe, ...buildImageUrls(recipe) });
+  res.json(toPublicRecipe(recipe));
 });

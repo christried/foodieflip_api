@@ -17,7 +17,7 @@ model Recipe {
   title        String
   shortTitle   String   @unique
   time         Int
-  imagePath    String
+  imageExtension String @default("jpg")
   imageAlt     String
   ingredients  String[]
   instructions String[]
