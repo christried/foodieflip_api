@@ -13,13 +13,23 @@ function isAllowedComplexity(value: string): value is (typeof ALLOWED_COMPLEXITI
   );
 }
 
-// Helper function that returns both imageURLs for now - will replace later on after Digital Ocean is running
 function buildImageUrls(
   req: Request,
   recipe: Pick<Recipe, "id" | "imagePath">,
 ) {
-  const base = `${req.protocol}://${req.get("host")}/api/images/${recipe.id}`;
+  const cdnBase = process.env["SPACES_CDN_BASE_URL"];
   const fullsizePath = recipe.imagePath.replace(".jpg", "_fullsize.jpg");
+
+  if (cdnBase) {
+    const base = `${cdnBase}/images/${recipe.id}`;
+    return {
+      imageUrl: `${base}/${recipe.imagePath}`,
+      fullsizeUrl: `${base}/${fullsizePath}`,
+    };
+  }
+
+  // Local fallback — used during development without Spaces configured
+  const base = `${req.protocol}://${req.get("host")}/api/images/${recipe.id}`;
   return {
     imageUrl: `${base}/${recipe.imagePath}`,
     fullsizeUrl: `${base}/${fullsizePath}`,

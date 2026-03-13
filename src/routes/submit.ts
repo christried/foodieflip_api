@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import multer, { FileFilterCallback } from "multer";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import { uploadToSpaces } from "../utils/spaces";
 
 dotenv.config();
 
@@ -36,6 +37,10 @@ const upload = multer({
   fileFilter,
   limits: { fileSize: MAX_FILE_SIZE_BYTES },
 });
+
+function sanitizeFilename(name: string): string {
+  return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
 
 // Trello helper functions
 
@@ -109,16 +114,20 @@ submitRouter.put(
 
     const idList = process.env["TRELLO_NEW_IMAGES_LIST_ID"] as string;
     const cardName = `New Image for Recipe #${recipeId}`;
-    const cardDesc = `Original filename: ${req.file.originalname}\nMIME type: ${req.file.mimetype}\nSize: ${req.file.size} bytes`;
 
     try {
+      const safeFilename = sanitizeFilename(req.file.originalname);
+      const spacesKey = `submissions/images/${recipeId}/${Date.now()}-${safeFilename}`;
+      const spacesUrl = await uploadToSpaces(req.file.buffer, spacesKey, req.file.mimetype);
+
+      const cardDesc = `Original filename: ${req.file.originalname}\nMIME type: ${req.file.mimetype}\nSize: ${req.file.size} bytes\nSpaces URL: ${spacesUrl}`;
       const newCard = await createTrelloCard(idList, cardName, cardDesc);
       await attachImageToTrelloCard(newCard.id, req.file);
 
       console.log("Image submission card created:", newCard.url);
       res.status(200).json({ message: "Image submitted for review" });
     } catch (error) {
-      console.error("Failed to submit image to Trello:", error);
+      console.error("Failed to submit image:", error);
       res.status(502).json({
         message: "Could not submit image for review. Please try again later.",
       });
@@ -200,11 +209,19 @@ submitRouter.post(
       2,
     );
 
-    const cardDesc = req.file
-      ? `Image: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)\n\n\`\`\`json\n${recipeJson}\n\`\`\``
-      : `\`\`\`json\n${recipeJson}\n\`\`\``;
-
     try {
+      let spacesUrl: string | undefined;
+      if (req.file) {
+        const safeFilename = sanitizeFilename(req.file.originalname);
+        const spacesKey = `submissions/recipes/${Date.now()}-${safeFilename}`;
+        spacesUrl = await uploadToSpaces(req.file.buffer, spacesKey, req.file.mimetype);
+      }
+
+      const cardDesc =
+        req.file && spacesUrl
+          ? `Image: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)\nSpaces URL: ${spacesUrl}\n\n\`\`\`json\n${recipeJson}\n\`\`\``
+          : `\`\`\`json\n${recipeJson}\n\`\`\``;
+
       const newCard = await createTrelloCard(idList, cardName, cardDesc);
 
       if (req.file) {
@@ -214,7 +231,7 @@ submitRouter.post(
       console.log("Recipe submission card created:", newCard.url);
       res.status(200).json({ message: "Recipe submitted for review" });
     } catch (error) {
-      console.error("Failed to submit recipe to Trello:", error);
+      console.error("Failed to submit recipe:", error);
       res.status(502).json({
         message: "Could not submit recipe for review. Please try again later.",
       });

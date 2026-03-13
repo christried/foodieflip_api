@@ -18,6 +18,11 @@ const REQUIRED_ENV_VARS = [
   "TRELLO_NEW_IMAGES_LIST_ID",
   "TRELLO_NEW_RECIPES_LIST_ID",
   "TRELLO_FEEDBACK_LIST_ID",
+  "SPACES_KEY",
+  "SPACES_SECRET",
+  "SPACES_ENDPOINT",
+  "SPACES_BUCKET",
+  "SPACES_CDN_BASE_URL",
 ] as const;
 
 const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
