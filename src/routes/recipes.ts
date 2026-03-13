@@ -4,6 +4,15 @@ import { Recipe } from "../generated/prisma";
 
 export const recipeRouter = Router();
 
+const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
+const RESERVED_RECIPE_SLUGS = new Set(["random", "vote"]);
+
+function isAllowedComplexity(value: string): value is (typeof ALLOWED_COMPLEXITIES)[number] {
+  return ALLOWED_COMPLEXITIES.includes(
+    value as (typeof ALLOWED_COMPLEXITIES)[number],
+  );
+}
+
 // Helper function that returns both imageURLs for now - will replace later on after Digital Ocean is running
 function buildImageUrls(
   req: Request,
@@ -19,8 +28,19 @@ function buildImageUrls(
 
 // GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
-  const complexity = req.params.complexity;
+  const complexityParam = req.params.complexity;
+  const complexity =
+    typeof complexityParam === "string"
+      ? complexityParam
+      : complexityParam?.[0] ?? "";
   const latestRecipeId = req.query.id as string | undefined;
+
+  if (!isAllowedComplexity(complexity)) {
+    res.status(400).json({
+      error: "Invalid complexity. Must be one of: quick, ordinary, complex.",
+    });
+    return;
+  }
 
   const maxTime =
     complexity === "quick" ? 20 : complexity === "ordinary" ? 40 : 999;
@@ -81,6 +101,13 @@ recipeRouter.patch("/vote", async (req: Request, res: Response) => {
 // GET /api/recipes/:shortTitle
 recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
   const shortTitle = req.params["shortTitle"] as string;
+
+  if (RESERVED_RECIPE_SLUGS.has(shortTitle.toLowerCase())) {
+    res
+      .status(404)
+      .json({ error: `Recipe with shortTitle ${shortTitle} doesn't exist` });
+    return;
+  }
 
   const recipe = await prisma.recipe.findUnique({ where: { shortTitle } });
   if (!recipe) {
