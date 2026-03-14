@@ -7,10 +7,10 @@
     "node": "22.x"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npx prisma generate && tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only --no-deps src/server.ts",
-    "heroku-postbuild": "npm run build && npx prisma generate"
+    "heroku-postbuild": "npm run build"
   },
   "keywords": [],
   "author": "",
