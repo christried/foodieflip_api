@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
-import { Recipe } from "../generated/prisma";
+import { Recipe } from "@prisma/client";
 
 export const recipeRouter = Router();
 
@@ -15,9 +15,7 @@ function isAllowedComplexity(
   );
 }
 
-function buildImageUrls(
-  recipe: Pick<Recipe, "id" | "imageExtension">,
-) {
+function buildImageUrls(recipe: Pick<Recipe, "id" | "imageExtension">) {
   const cdnBase = process.env["SPACES_CDN_BASE_URL"] as string;
   const extension = recipe.imageExtension.toLowerCase() || "jpg";
   const originalPath = `original.${extension}`;
