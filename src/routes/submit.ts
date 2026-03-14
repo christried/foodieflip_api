@@ -19,7 +19,7 @@ const submitLimiter = rateLimit({
 
 // Multer config
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
+const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024;
 
 const fileFilter = (
   _req: Request,
@@ -155,7 +155,7 @@ submitRouter.put(
     }
 
     const idList = process.env["TRELLO_NEW_IMAGES_LIST_ID"] as string;
-  const cardName = `New Image for Recipe ${recipeId}`;
+    const cardName = `New Image for Recipe ${recipeId}`;
 
     try {
       const safeFileBaseName = stripExtension(
