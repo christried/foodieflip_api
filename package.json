@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "Backend API for FoodieFlip recipe app",
   "main": "dist/server.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only --no-deps src/server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only --no-deps src/server.ts",
+    "heroku-postbuild": "npm run build && npx prisma generate"
   },
   "keywords": [],
   "author": "",
