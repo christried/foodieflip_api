@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import { recipeRouter } from "./routes/recipes";
 import { feedbackRouter } from "./routes/feedback";
 import { submitRouter } from "./routes/submit";
+import { contactRouter } from "./routes/contact";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -22,12 +23,16 @@ const REQUIRED_ENV_VARS = [
   "SPACES_ENDPOINT",
   "SPACES_BUCKET",
   "SPACES_CDN_BASE_URL",
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_USER",
+  "SMTP_PASS",
 ] as const;
 
 const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
 if (missingVars.length > 0) {
   console.error(
-    `Missing required environment variables: ${missingVars.join(", ")}`
+    `Missing required environment variables: ${missingVars.join(", ")}`,
   );
   process.exit(1);
 }
@@ -79,6 +84,7 @@ app.use(globalLimiter);
 app.use("/api/recipes", recipeRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/submit", submitRouter);
+app.use("/api/contact", contactRouter);
 
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
@@ -90,4 +96,5 @@ app.listen(PORT, () => {
   console.log(`For Recipes Try: http://localhost:${PORT}/api/recipes`);
   console.log(`For Feedback Try: http://localhost:${PORT}/api/feedback`);
   console.log(`For Submissions Try: http://localhost:${PORT}/api/submit`);
+  console.log(`For Contact Try: http://localhost:${PORT}/api/contact`);
 });
