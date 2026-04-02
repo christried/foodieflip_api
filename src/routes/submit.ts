@@ -295,7 +295,6 @@ submitRouter.post(
       });
 
       const adminPanelBaseUrl = getAdminPanelBaseUrl();
-      const reviewUrl = `${adminPanelBaseUrl}/recipes/${createdRecipe.id}`;
       const idList = process.env["TRELLO_NEW_RECIPES_LIST_ID"] as string;
       const cardName = `New Recipe: ${title}`;
 
@@ -322,8 +321,8 @@ submitRouter.post(
 
       const cardDesc =
         req.file && originalUrl && mediumUrl && smallUrl
-          ? `Recipe ID: ${createdRecipe.id}\nStatus: PENDING\nReview URL: ${reviewUrl}\n\nImage: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)\nOriginal URL: ${originalUrl}\nMedium URL (300w): ${mediumUrl}\nSmall URL (100w): ${smallUrl}\n\nCheck Neon/admin for approval.\n\n\`\`\`json\n${recipeJson}\n\`\`\``
-          : `Recipe ID: ${createdRecipe.id}\nStatus: PENDING\nReview URL: ${reviewUrl}\n\nCheck Neon/admin for approval.\n\n\`\`\`json\n${recipeJson}\n\`\`\``;
+          ? `Recipe ID: ${createdRecipe.id}\nStatus: PENDING\n\n\nOriginal URL: ${originalUrl}\n\n\n\`\`\`json\n${recipeJson}\n\`\`\``
+          : `Recipe ID: ${createdRecipe.id}\nStatus: PENDING\n\n\`\`\`json\n${recipeJson}\n\`\`\``;
 
       const newCard = await createTrelloCard(idList, cardName, cardDesc);
 
