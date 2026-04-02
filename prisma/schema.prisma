@@ -11,20 +11,30 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum RecipeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Recipe {
-  id           String   @id @default(cuid())
-  title        String
-  shortTitle   String   @unique
-  time         Int
+  id             String       @id @default(cuid())
+  title          String
+  shortTitle     String       @unique
+  time           Int
   imageExtension String @default("jpg")
-  imageAlt     String
-  ingredients  String[]
-  instructions String[]
-  tagsPublic   String[]
-  tagsInternal String[]
-  upvotes      Int      @default(0)
-  downvotes    Int      @default(0)
-  submittedBy  String   @default("FoodieFlip")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  imageAlt       String
+  ingredients    String[]
+  instructions   String[]
+  tagsPublic     String[]
+  tagsInternal   String[]
+  upvotes        Int          @default(0)
+  downvotes      Int          @default(0)
+  submittedBy    String       @default("FoodieFlip")
+  status         RecipeStatus @default(PENDING)
+  approvedBy     String?
+  approvedAt     DateTime?
+  reviewNotes    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 }

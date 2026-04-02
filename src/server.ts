@@ -27,6 +27,8 @@ const REQUIRED_ENV_VARS = [
   "SMTP_PORT",
   "SMTP_USER",
   "SMTP_PASS",
+  "ADMIN_PANEL_URL_DEV",
+  "ADMIN_PANEL_URL_PROD",
 ] as const;
 
 const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);

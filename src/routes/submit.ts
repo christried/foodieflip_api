@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import { uploadToSpaces } from "../utils/spaces";
 import sharp from "sharp";
+import { prisma } from "../prisma";
 
 dotenv.config();
 
@@ -106,31 +107,40 @@ async function createTrelloCard(
   return response.json() as Promise<{ id: string; url: string }>;
 }
 
-async function attachImageToTrelloCard(
-  cardId: string,
-  file: Express.Multer.File,
-): Promise<void> {
-  const key = process.env["TRELLO_API_KEY"] as string;
-  const token = process.env["TRELLO_API_TOKEN"] as string;
+function slugifyShortTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+}
 
-  const attachFormData = new FormData();
-  attachFormData.append(
-    "file",
-    new Blob([new Uint8Array(file.buffer)], { type: file.mimetype }),
-    file.originalname,
-  );
-  attachFormData.append("name", file.originalname);
-  attachFormData.append("mimeType", file.mimetype);
-  attachFormData.append("setCover", "true");
+async function generateUniqueShortTitle(title: string): Promise<string> {
+  const base = slugifyShortTitle(title) || "recipe";
+  let counter = 1;
 
-  const response = await fetch(
-    `https://api.trello.com/1/cards/${cardId}/attachments?key=${key}&token=${token}`,
-    { method: "POST", body: attachFormData },
-  );
+  while (true) {
+    const candidate = counter === 1 ? base : `${base}-${counter}`;
+    const existing = await prisma.recipe.findUnique({
+      where: { shortTitle: candidate },
+      select: { id: true },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Trello attachment upload failed: ${response.statusText}`);
+    if (!existing) {
+      return candidate;
+    }
+
+    counter += 1;
   }
+}
+
+function getAdminPanelBaseUrl(): string {
+  const isProduction = process.env["NODE_ENV"] === "production";
+  if (isProduction) {
+    return (process.env["ADMIN_PANEL_URL_PROD"] || "").replace(/\/$/, "");
+  }
+  return (process.env["ADMIN_PANEL_URL_DEV"] || "").replace(/\/$/, "");
 }
 
 //PUT /api/submit/image
@@ -175,9 +185,8 @@ submitRouter.put(
         uploadToSpaces(variants.small100, smallKey, req.file.mimetype),
       ]);
 
-      const cardDesc = `Original filename: ${req.file.originalname}\nMIME type: ${req.file.mimetype}\nSize: ${req.file.size} bytes\nOriginal URL: ${originalUrl}\nMedium URL (300w): ${mediumUrl}\nSmall URL (100w): ${smallUrl}`;
+      const cardDesc = `Original filename: ${req.file.originalname}\nMIME type: ${req.file.mimetype}\nSize: ${req.file.size} bytes\nOriginal URL: ${originalUrl}\nMedium URL (300w): ${mediumUrl}\nSmall URL (100w): ${smallUrl}\n\nReview image in Neon/admin workflow.`;
       const newCard = await createTrelloCard(idList, cardName, cardDesc);
-      await attachImageToTrelloCard(newCard.id, req.file);
 
       console.log("Image submission card created:", newCard.url);
       res.status(200).json({ message: "Image submitted for review" });
@@ -242,34 +251,11 @@ submitRouter.post(
       return;
     }
 
-    const idList = process.env["TRELLO_NEW_RECIPES_LIST_ID"] as string;
-    const cardName = `New Recipe: ${title}`;
-
-    const recipeJson = JSON.stringify(
-      {
-        id: "TBD",
-        title,
-        time,
-        imageExtension: req.file
-          ? getExtensionFromMimeType(req.file.mimetype)
-          : "jpg",
-        imageAlt: "TBD",
-        ingredients,
-        instructions,
-        tags_public: [],
-        tags_internal: [],
-        upvotes: 0,
-        downvotes: 0,
-        submittedBy,
-      },
-      null,
-      2,
-    );
-
     try {
       let originalUrl: string | undefined;
       let mediumUrl: string | undefined;
       let smallUrl: string | undefined;
+      let imageExtension = "jpg";
 
       if (req.file) {
         const safeFileBaseName = stripExtension(
@@ -279,6 +265,7 @@ submitRouter.post(
         const variantRoot = `submissions/recipes/${timestamp}-${safeFileBaseName}`;
 
         const variants = await createImageVariants(req.file);
+        imageExtension = variants.extension;
         const originalKey = `${variantRoot}/original.${variants.extension}`;
         const mediumKey = `${variantRoot}/medium-300w.${variants.extension}`;
         const smallKey = `${variantRoot}/small-100w.${variants.extension}`;
@@ -290,19 +277,62 @@ submitRouter.post(
         ]);
       }
 
+      const shortTitle = await generateUniqueShortTitle(title);
+      const createdRecipe = await prisma.recipe.create({
+        data: {
+          title,
+          shortTitle,
+          time,
+          imageExtension,
+          imageAlt: title,
+          ingredients,
+          instructions,
+          tagsPublic: [],
+          tagsInternal: [],
+          submittedBy,
+          status: "PENDING",
+        },
+      });
+
+      const adminPanelBaseUrl = getAdminPanelBaseUrl();
+      const reviewUrl = `${adminPanelBaseUrl}/recipes/${createdRecipe.id}`;
+      const idList = process.env["TRELLO_NEW_RECIPES_LIST_ID"] as string;
+      const cardName = `New Recipe: ${title}`;
+
+      const recipeJson = JSON.stringify(
+        {
+          id: createdRecipe.id,
+          title,
+          shortTitle,
+          time,
+          imageExtension,
+          imageAlt: title,
+          ingredients,
+          instructions,
+          tags_public: [],
+          tags_internal: [],
+          upvotes: 0,
+          downvotes: 0,
+          submittedBy,
+          status: "PENDING",
+        },
+        null,
+        2,
+      );
+
       const cardDesc =
         req.file && originalUrl && mediumUrl && smallUrl
-          ? `Image: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)\nOriginal URL: ${originalUrl}\nMedium URL (300w): ${mediumUrl}\nSmall URL (100w): ${smallUrl}\n\n\`\`\`json\n${recipeJson}\n\`\`\``
-          : `\`\`\`json\n${recipeJson}\n\`\`\``;
+          ? `Recipe ID: ${createdRecipe.id}\nStatus: PENDING\nReview URL: ${reviewUrl}\n\nImage: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)\nOriginal URL: ${originalUrl}\nMedium URL (300w): ${mediumUrl}\nSmall URL (100w): ${smallUrl}\n\nCheck Neon/admin for approval.\n\n\`\`\`json\n${recipeJson}\n\`\`\``
+          : `Recipe ID: ${createdRecipe.id}\nStatus: PENDING\nReview URL: ${reviewUrl}\n\nCheck Neon/admin for approval.\n\n\`\`\`json\n${recipeJson}\n\`\`\``;
 
       const newCard = await createTrelloCard(idList, cardName, cardDesc);
 
-      if (req.file) {
-        await attachImageToTrelloCard(newCard.id, req.file);
-      }
-
       console.log("Recipe submission card created:", newCard.url);
-      res.status(200).json({ message: "Recipe submitted for review" });
+      res.status(200).json({
+        message: "Recipe submitted for review",
+        id: createdRecipe.id,
+        status: createdRecipe.status,
+      });
     } catch (error) {
       console.error("Failed to submit recipe:", error);
       res.status(502).json({

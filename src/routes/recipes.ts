@@ -1,11 +1,20 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
 import { Recipe } from "@prisma/client";
+import rateLimit from "express-rate-limit";
 
 export const recipeRouter = Router();
 
 const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
 const RESERVED_RECIPE_SLUGS = new Set(["random", "vote"]);
+
+const approveLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many approvals, please try again later." },
+});
 
 function isAllowedComplexity(
   value: string,
@@ -33,6 +42,16 @@ function toPublicRecipe(recipe: Recipe) {
   return { ...recipe, ...buildImageUrls(recipe) };
 }
 
+// GET /api/recipes/pending
+recipeRouter.get("/pending", async (_req: Request, res: Response) => {
+  const pendingRecipes = await prisma.recipe.findMany({
+    where: { status: "PENDING" },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.json(pendingRecipes.map(toPublicRecipe));
+});
+
 // GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
   const complexityParam = req.params.complexity;
@@ -56,6 +75,7 @@ recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
 
   const recipes = await prisma.recipe.findMany({
     where: {
+      status: "APPROVED",
       time: { gte: minTime, lte: maxTime },
       NOT: latestRecipeId ? { id: latestRecipeId } : undefined,
     },
@@ -83,6 +103,15 @@ recipeRouter.patch("/vote", async (req: Request, res: Response) => {
   }
 
   try {
+    const existingRecipe = await prisma.recipe.findFirst({
+      where: { id, status: "APPROVED" },
+    });
+
+    if (!existingRecipe) {
+      res.status(404).json({ error: `Recipe with id ${id} doesn't exist` });
+      return;
+    }
+
     const recipe = await prisma.recipe.update({
       where: { id },
       data: {
@@ -105,6 +134,71 @@ recipeRouter.patch("/vote", async (req: Request, res: Response) => {
   }
 });
 
+// PATCH /api/recipes/approve/:id
+recipeRouter.patch(
+  "/approve/:id",
+  approveLimiter,
+  async (req: Request, res: Response) => {
+    const idParam = req.params["id"];
+    const id = Array.isArray(idParam) ? idParam[0] : idParam;
+    const action = req.body.action as string | undefined;
+    const reviewNotesRaw = req.body.reviewNotes as string | undefined;
+
+    if (!id) {
+      res.status(400).json({ error: "Missing recipe id" });
+      return;
+    }
+
+    if (action !== "approve" && action !== "reject") {
+      res.status(400).json({
+        error: "Invalid action. Must be 'approve' or 'reject'.",
+      });
+      return;
+    }
+
+    const recipe = await prisma.recipe.findUnique({ where: { id } });
+    if (!recipe) {
+      res.status(404).json({ error: `Recipe with id ${id} doesn't exist` });
+      return;
+    }
+
+    if (recipe.status !== "PENDING") {
+      res.status(409).json({
+        error: `Recipe is already ${recipe.status.toLowerCase()} and cannot be reviewed again.`,
+      });
+      return;
+    }
+
+    if (action === "approve") {
+      await prisma.recipe.update({
+        where: { id },
+        data: {
+          status: "APPROVED",
+          approvedAt: new Date(),
+          approvedBy: "internal-admin",
+          reviewNotes: null,
+        },
+      });
+
+      res.json({ message: "Recipe approved", id });
+      return;
+    }
+
+    const reviewNotes = reviewNotesRaw?.trim() || null;
+    await prisma.recipe.update({
+      where: { id },
+      data: {
+        status: "REJECTED",
+        reviewNotes,
+        approvedAt: null,
+        approvedBy: null,
+      },
+    });
+
+    res.json({ message: "Recipe rejected", id });
+  },
+);
+
 // GET /api/recipes/:shortTitle
 recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
   const shortTitle = req.params["shortTitle"] as string;
@@ -117,7 +211,7 @@ recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
   }
 
   const recipe = await prisma.recipe.findUnique({ where: { shortTitle } });
-  if (!recipe) {
+  if (!recipe || recipe.status !== "APPROVED") {
     res
       .status(404)
       .json({ error: `Recipe with shortTitle ${shortTitle} doesn't exist` });
