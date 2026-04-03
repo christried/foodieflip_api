@@ -2,6 +2,8 @@ import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
 import { Recipe } from "@prisma/client";
 import rateLimit from "express-rate-limit";
+import { DiscordService } from "../utils/discord.service";
+import { RecipeDiscordNotification } from "../models/recipe-discord-notification.model";
 
 export const recipeRouter = Router();
 
@@ -170,7 +172,7 @@ recipeRouter.patch(
     }
 
     if (action === "approve") {
-      await prisma.recipe.update({
+      const approvedRecipe = await prisma.recipe.update({
         where: { id },
         data: {
           status: "APPROVED",
@@ -178,6 +180,15 @@ recipeRouter.patch(
           approvedBy: "internal-admin",
           reviewNotes: null,
         },
+      });
+
+      const { imageUrl } = buildImageUrls(approvedRecipe);
+
+      void DiscordService.sendRecipeNotification({
+        title: approvedRecipe.title,
+        submittedBy: approvedRecipe.submittedBy,
+        time: approvedRecipe.time,
+        imageUrl,
       });
 
       res.json({ message: "Recipe approved", id });
