@@ -29,6 +29,7 @@ const REQUIRED_ENV_VARS = [
   "SMTP_PASS",
   "ADMIN_PANEL_URL_DEV",
   "ADMIN_PANEL_URL_PROD",
+  "DISCORD_WEBHOOK_URL",
 ] as const;
 
 const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
