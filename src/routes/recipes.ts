@@ -3,7 +3,6 @@ import { prisma } from "../prisma";
 import { Recipe } from "@prisma/client";
 import rateLimit from "express-rate-limit";
 import { DiscordService } from "../utils/discord.service";
-import { RecipeDiscordNotification } from "../models/recipe-discord-notification.model";
 
 export const recipeRouter = Router();
 
@@ -38,6 +37,16 @@ function buildImageUrls(recipe: Pick<Recipe, "id" | "imageExtension">) {
     imageUrl: `${base}/${mediumPath}`,
     fullsizeUrl: `${base}/${originalPath}`,
   };
+}
+
+function buildPublicRecipeUrl(shortTitle: string): string | undefined {
+  const baseUrl =
+    process.env["PUBLIC_RECIPE_BASE_URL"]?.trim().replace(/\/$/, "") || "";
+  if (!baseUrl) {
+    return undefined;
+  }
+
+  return `${baseUrl}/${encodeURIComponent(shortTitle)}`;
 }
 
 function toPublicRecipe(recipe: Recipe) {
@@ -186,6 +195,7 @@ recipeRouter.patch(
 
       void DiscordService.sendRecipeNotification({
         title: approvedRecipe.title,
+        recipeUrl: buildPublicRecipeUrl(approvedRecipe.shortTitle),
         submittedBy: approvedRecipe.submittedBy,
         time: approvedRecipe.time,
         imageUrl,

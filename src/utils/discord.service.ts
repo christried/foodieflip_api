@@ -15,9 +15,11 @@ export class DiscordService {
 
     const message = {
       content: `🥗 **Ein neues Rezept ist online!**`,
+      allowed_mentions: { parse: ["users", "roles"] },
       embeds: [
         {
           title: recipe.title,
+          url: recipe.recipeUrl,
           color: 5814783,
           timestamp: new Date().toISOString(),
           fields: [
@@ -28,7 +30,7 @@ export class DiscordService {
             },
             {
               name: "Zubereitungszeit:",
-              value: `${recipe.time} Minuten` || "n/a",
+              value: recipe.time != null ? `${recipe.time} Minuten` : "n/a",
               inline: true,
             },
           ],
@@ -38,11 +40,18 @@ export class DiscordService {
       ],
     };
 
+    // create AbortController to avoid "zombie executions" in heroku if discord takes a very long time
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
+    const abortTimeout = setTimeout(() => abortController.abort(), 60000);
+
     try {
       const response = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(message),
+        signal,
       });
 
       if (!response.ok) {
@@ -51,8 +60,12 @@ export class DiscordService {
           `Discord webhook failed (${response.status}): ${body || response.statusText}`,
         );
       }
-    } catch (error) {
-      console.error("Failed to send Discord notification:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === "AbortError") {
+        console.error("Fetch aborted: The request took too long to respond.");
+      } else console.error("Failed to send Discord notification:", error);
+    } finally {
+      clearTimeout(abortTimeout);
     }
   }
 }
