@@ -54,8 +54,6 @@ export class DiscordService {
         signal,
       });
 
-      clearTimeout(abortTimeout);
-
       if (!response.ok) {
         const body = await response.text();
         throw new Error(
@@ -63,9 +61,11 @@ export class DiscordService {
         );
       }
     } catch (error: unknown) {
-      if ((error as Error).name === "AbortError") {
+      if (error instanceof Error && error.name === "AbortError") {
         console.error("Fetch aborted: The request took too long to respond.");
       } else console.error("Failed to send Discord notification:", error);
+    } finally {
+      clearTimeout(abortTimeout);
     }
   }
 }

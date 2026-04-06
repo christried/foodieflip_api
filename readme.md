@@ -55,7 +55,7 @@ Optional:
 
 - `ALLOWED_ORIGINS` (comma-separated, defaults to `http://localhost:4200`)
 - `PORT` (defaults to `3000`)
-- `DISCORD_WEBHOOK_URL` (used to send notifications to a discord webhook)
+- `DISCORD_WEBHOOK_URL` (used to send notifications to a Discord webhook)
 - `PUBLIC_RECIPE_BASE_URL` (base URL for Discord recipe links, e.g. `https://foodieflip.app/recipe`)
 
 ## Local Development
