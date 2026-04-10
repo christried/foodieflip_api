@@ -40,6 +40,10 @@ These uploads are for moderation context. They do not auto-publish recipes.
 Required by the API process:
 
 - `DATABASE_URL`
+- `GOOGLE_CLIENT_ID`
+- `SESSION_SECRET`
+- `COOKIE_NAME`
+- `COOKIE_MAX_AGE_MS`
 - `TRELLO_API_KEY`
 - `TRELLO_API_TOKEN`
 - `TRELLO_NEW_IMAGES_LIST_ID`
@@ -57,6 +61,15 @@ Optional:
 - `PORT` (defaults to `3000`)
 - `DISCORD_WEBHOOK_URL` (used to send notifications to a Discord webhook)
 - `PUBLIC_RECIPE_BASE_URL` (base URL for Discord recipe links, e.g. `https://foodieflip.app/recipe`)
+
+## Session and Cookie Setup
+
+- The API enables `trust proxy` for Heroku (`app.set("trust proxy", 1)`).
+- CORS uses an explicit allowlist from `ALLOWED_ORIGINS` and enables credentials.
+- Sessions are server-side and persisted in Postgres with `express-session` + `connect-pg-simple`.
+- Production cookies are configured with `httpOnly=true`, `secure=true`, `sameSite=none`, `path=/`.
+- Local development cookies are configured with `httpOnly=true`, `secure=false`, `sameSite=lax`, `path=/`.
+- Cookie domain is intentionally not set, so it remains host-only for the backend domain.
 
 ## Local Development
 
