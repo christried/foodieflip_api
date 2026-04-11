@@ -50,8 +50,8 @@ const app = express();
 const PORT = process.env["PORT"] || 3000;
 const isProduction = process.env["NODE_ENV"] === "production";
 
-const cookieName = process.env["COOKIE_NAME"] || "ff_session";
-const cookieMaxAgeMs = Number(process.env["COOKIE_MAX_AGE_MS"] || "1209600000");
+const cookieName = process.env["COOKIE_NAME"];
+const cookieMaxAgeMs = Number(process.env["COOKIE_MAX_AGE_MS"]);
 
 if (!Number.isFinite(cookieMaxAgeMs) || cookieMaxAgeMs <= 0) {
   console.error("COOKIE_MAX_AGE_MS must be a positive number.");
