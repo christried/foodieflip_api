@@ -10,7 +10,7 @@ const GOOGLE_ISSUERS = new Set([
   "accounts.google.com",
   "https://accounts.google.com",
 ]);
-const USERNAME_REGEX = /^[a-z0-9_]{3,24}$/;
+const USERNAME_REGEX = /^[A-Za-z0-9_]{3,24}$/;
 
 const authGoogleLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -41,7 +41,7 @@ function parseUsername(rawUsername: unknown): string | null {
     return null;
   }
 
-  const normalized = rawUsername.trim().toLowerCase();
+  const normalized = rawUsername.trim();
   if (!USERNAME_REGEX.test(normalized)) {
     return null;
   }
@@ -186,7 +186,7 @@ authRouter.patch("/username", async (req: Request, res: Response) => {
   if (!username) {
     res.status(400).json({
       error:
-        "Invalid username. Use 3-24 lowercase characters, numbers, or underscores.",
+        "Invalid username. Use 3-24 letters (upper/lowercase), numbers, or underscores.",
     });
     return;
   }
