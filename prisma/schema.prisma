@@ -17,6 +17,23 @@ enum RecipeStatus {
   REJECTED
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id               String   @id @default(cuid())
+  googleSub        String   @unique
+  email            String   @unique
+  username         String?  @unique
+  role             UserRole @default(USER)
+  lastLoginAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  submittedRecipes Recipe[] @relation("SubmittedRecipes")
+}
+
 model Recipe {
   id             String       @id @default(cuid())
   title          String
@@ -31,10 +48,14 @@ model Recipe {
   upvotes        Int          @default(0)
   downvotes      Int          @default(0)
   submittedBy    String       @default("FoodieFlip")
+  submittedByUserId String?
+  submittedByUser User? @relation("SubmittedRecipes", fields: [submittedByUserId], references: [id], onDelete: SetNull)
   status         RecipeStatus @default(PENDING)
   approvedBy     String?
   approvedAt     DateTime?
   reviewNotes    String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  @@index([submittedByUserId])
 }

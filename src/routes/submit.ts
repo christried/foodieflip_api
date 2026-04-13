@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { uploadToSpaces } from "../utils/spaces";
 import sharp from "sharp";
 import { prisma } from "../prisma";
+import { getAuthUser, requireAuth } from "../middleware/auth";
 
 dotenv.config();
 
@@ -148,6 +149,7 @@ function getAdminPanelBaseUrl(): string {
 submitRouter.put(
   "/image",
   submitLimiter,
+  requireAuth,
   upload.single("image"),
   async (req: Request, res: Response) => {
     const recipeId = (req.body as { recipeId?: string }).recipeId ?? "";
@@ -204,21 +206,30 @@ submitRouter.put(
 submitRouter.post(
   "/recipe",
   submitLimiter,
+  requireAuth,
   upload.single("image"),
   async (req: Request, res: Response) => {
+    const authUser = getAuthUser(res);
+    if (!authUser) {
+      res.status(401).json({ message: "Authentication required" });
+      return;
+    }
+
+    if (!authUser.username) {
+      res.status(409).json({
+        message: "Please set a username before submitting recipes.",
+      });
+      return;
+    }
+
     const body = req.body as Record<string, string>;
 
     const title = body["title"]?.trim() ?? "";
-    const submittedBy = body["submittedBy"]?.trim() ?? "";
+    const submittedBy = authUser.username;
     const timeString = body["time"] ?? "";
 
     if (!title) {
       res.status(400).json({ message: "Missing or empty title" });
-      return;
-    }
-
-    if (!submittedBy) {
-      res.status(400).json({ message: "Missing or empty submittedBy" });
       return;
     }
 
@@ -290,6 +301,7 @@ submitRouter.post(
           tagsPublic: [],
           tagsInternal: [],
           submittedBy,
+          submittedByUserId: authUser.id,
           status: "PENDING",
         },
       });

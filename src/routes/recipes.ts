@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
-import { Recipe } from "@prisma/client";
+import { Recipe, UserRole } from "@prisma/client";
 import rateLimit from "express-rate-limit";
 import { DiscordService } from "../utils/discord.service";
+import { getAuthUser, requireAuth, requireRole } from "../middleware/auth";
 
 export const recipeRouter = Router();
 
@@ -54,14 +55,19 @@ function toPublicRecipe(recipe: Recipe) {
 }
 
 // GET /api/recipes/pending
-recipeRouter.get("/pending", async (_req: Request, res: Response) => {
-  const pendingRecipes = await prisma.recipe.findMany({
-    where: { status: "PENDING" },
-    orderBy: { createdAt: "desc" },
-  });
+recipeRouter.get(
+  "/pending",
+  requireAuth,
+  requireRole(UserRole.ADMIN),
+  async (_req: Request, res: Response) => {
+    const pendingRecipes = await prisma.recipe.findMany({
+      where: { status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    });
 
-  res.json(pendingRecipes.map(toPublicRecipe));
-});
+    res.json(pendingRecipes.map(toPublicRecipe));
+  },
+);
 
 // GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
@@ -149,11 +155,14 @@ recipeRouter.patch("/vote", async (req: Request, res: Response) => {
 recipeRouter.patch(
   "/approve/:id",
   approveLimiter,
+  requireAuth,
+  requireRole(UserRole.ADMIN),
   async (req: Request, res: Response) => {
     const idParam = req.params["id"];
     const id = Array.isArray(idParam) ? idParam[0] : idParam;
     const action = req.body.action as string | undefined;
     const reviewNotesRaw = req.body.reviewNotes as string | undefined;
+    const authUser = getAuthUser(res);
 
     if (!id) {
       res.status(400).json({ error: "Missing recipe id" });
@@ -181,12 +190,15 @@ recipeRouter.patch(
     }
 
     if (action === "approve") {
+      const approvedBy =
+        authUser?.username || authUser?.email || "internal-admin";
+
       const approvedRecipe = await prisma.recipe.update({
         where: { id },
         data: {
           status: "APPROVED",
           approvedAt: new Date(),
-          approvedBy: "internal-admin",
+          approvedBy,
           reviewNotes: null,
         },
       });

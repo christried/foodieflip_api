@@ -2,10 +2,14 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import { Pool } from "pg";
 import { recipeRouter } from "./routes/recipes";
 import { feedbackRouter } from "./routes/feedback";
 import { submitRouter } from "./routes/submit";
 import { contactRouter } from "./routes/contact";
+import { authRouter } from "./routes/auth";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -13,6 +17,10 @@ dotenv.config();
 // Fail fast if required environment variables are missing
 const REQUIRED_ENV_VARS = [
   "DATABASE_URL",
+  "GOOGLE_CLIENT_ID",
+  "SESSION_SECRET",
+  "COOKIE_NAME",
+  "COOKIE_MAX_AGE_MS",
   "TRELLO_API_KEY",
   "TRELLO_API_TOKEN",
   "TRELLO_NEW_IMAGES_LIST_ID",
@@ -41,24 +49,80 @@ if (missingVars.length > 0) {
 
 const app = express();
 const PORT = process.env["PORT"] || 3000;
+const isProduction = process.env["NODE_ENV"] === "production";
 
-const allowedOrigins = (
-  process.env["ALLOWED_ORIGINS"] || "http://localhost:4200"
+const cookieName = process.env["COOKIE_NAME"] || "ff_session";
+const cookieMaxAgeMs = Number(process.env["COOKIE_MAX_AGE_MS"] || "1209600000");
+
+if (!Number.isFinite(cookieMaxAgeMs) || cookieMaxAgeMs <= 0) {
+  console.error("COOKIE_MAX_AGE_MS must be a positive number.");
+  process.exit(1);
+}
+
+const parseCsvValues = (value: string) =>
+  value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+const normalizeOrigin = (origin: string) => {
+  const trimmedOrigin = origin.trim();
+  if (!trimmedOrigin) {
+    return "";
+  }
+
+  try {
+    return new URL(trimmedOrigin).origin;
+  } catch {
+    return trimmedOrigin.replace(/\/+$/, "");
+  }
+};
+
+const allowedOrigins = parseCsvValues(
+  process.env["ALLOWED_ORIGINS"] || "http://localhost:4200",
 )
-  .split(",")
-  .map((o) => o.trim());
+  .map(normalizeOrigin)
+  .filter(Boolean);
+
+const allowedOriginSet = new Set(allowedOrigins);
+
+const sessionPool = new Pool({
+  connectionString: process.env["DATABASE_URL"],
+});
+
+sessionPool.on("error", (error) => {
+  console.error("Unexpected Postgres session pool error:", error);
+});
+
+const PgStore = connectPgSimple(session);
+const sessionStore = new PgStore({
+  pool: sessionPool,
+  tableName: "user_sessions",
+  createTableIfMissing: true,
+});
+
+// Heroku runs behind a reverse proxy, so trust the first hop.
+app.set("trust proxy", 1);
 
 // CORS
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, Postman, server-to-server)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
         callback(null, true);
-      } else {
-        callback(new Error(`CORS: origin ${origin} not allowed`));
+        return;
       }
+
+      const normalizedOrigin = normalizeOrigin(origin);
+      if (allowedOriginSet.has(normalizedOrigin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS: origin ${origin} not allowed`));
     },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 204,
@@ -70,6 +134,24 @@ app.use(helmet());
 
 // Body size limit — reject payloads larger than 10 KB
 app.use(express.json({ limit: "10kb" }));
+
+app.use(
+  session({
+    name: cookieName,
+    secret: process.env["SESSION_SECRET"]!,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    proxy: isProduction,
+    cookie: {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+      path: "/",
+      maxAge: cookieMaxAgeMs,
+    },
+  }),
+);
 
 // Global rate limiter — 100 requests per 15 minutes per IP
 const globalLimiter = rateLimit({
@@ -83,6 +165,7 @@ app.use(globalLimiter);
 
 // Routes
 // possibility to add further sub-files later
+app.use("/api/auth", authRouter);
 app.use("/api/recipes", recipeRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/submit", submitRouter);

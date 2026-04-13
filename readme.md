@@ -40,6 +40,10 @@ These uploads are for moderation context. They do not auto-publish recipes.
 Required by the API process:
 
 - `DATABASE_URL`
+- `GOOGLE_CLIENT_ID`
+- `SESSION_SECRET`
+- `COOKIE_NAME`
+- `COOKIE_MAX_AGE_MS`
 - `TRELLO_API_KEY`
 - `TRELLO_API_TOKEN`
 - `TRELLO_NEW_IMAGES_LIST_ID`
@@ -57,6 +61,28 @@ Optional:
 - `PORT` (defaults to `3000`)
 - `DISCORD_WEBHOOK_URL` (used to send notifications to a Discord webhook)
 - `PUBLIC_RECIPE_BASE_URL` (base URL for Discord recipe links, e.g. `https://foodieflip.app/recipe`)
+
+## Auth and Session Setup
+
+- Proxy trust is enabled for Heroku deployments (`app.set("trust proxy", 1)`).
+- CORS uses an explicit allowlist from `ALLOWED_ORIGINS` with `credentials: true`.
+- Sessions are persisted server-side in Postgres using `express-session` + `connect-pg-simple`.
+- Cookie policy:
+  - `httpOnly=true`
+  - `sameSite=lax`
+  - `secure=true` in production (`NODE_ENV=production`)
+  - `secure=false` in local development
+  - `path=/`
+- Cookie domain is not set, so the cookie remains host-only.
+
+## Auth Endpoints
+
+- `POST /api/auth/google`
+- `GET /api/auth/me`
+- `PATCH /api/auth/username`
+- `POST /api/auth/logout`
+
+Google login response includes `needsUsername` to support first-login onboarding.
 
 ## Local Development
 
@@ -83,9 +109,15 @@ npm run build
 ## API Routes
 
 - `GET /api/health`
+- `POST /api/auth/google`
+- `GET /api/auth/me`
+- `PATCH /api/auth/username`
+- `POST /api/auth/logout`
 - `GET /api/recipes/random/:complexity`
 - `GET /api/recipes/:shortTitle`
 - `PATCH /api/recipes/vote`
+- `GET /api/recipes/pending` (auth required, admin only)
+- `PATCH /api/recipes/approve/:id` (auth required, admin only)
 - `POST /api/feedback`
-- `PUT /api/submit/image`
-- `POST /api/submit/recipe`
+- `PUT /api/submit/image` (auth required)
+- `POST /api/submit/recipe` (auth required, username required)
