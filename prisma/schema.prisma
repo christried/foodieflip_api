@@ -26,12 +26,14 @@ model User {
   id               String   @id @default(cuid())
   googleSub        String   @unique
   email            String   @unique
-  username         String?  @unique
+  username         String?
+  usernameCanonical String?  @unique
   role             UserRole @default(USER)
   lastLoginAt      DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   submittedRecipes Recipe[] @relation("SubmittedRecipes")
+  favoriteRecipes  FavoriteRecipe[]
 }
 
 model Recipe {
@@ -50,6 +52,7 @@ model Recipe {
   submittedBy    String       @default("FoodieFlip")
   submittedByUserId String?
   submittedByUser User? @relation("SubmittedRecipes", fields: [submittedByUserId], references: [id], onDelete: SetNull)
+  favoritedByUsers FavoriteRecipe[]
   status         RecipeStatus @default(PENDING)
   approvedBy     String?
   approvedAt     DateTime?
@@ -58,4 +61,16 @@ model Recipe {
   updatedAt      DateTime     @updatedAt
 
   @@index([submittedByUserId])
+}
+
+model FavoriteRecipe {
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, recipeId])
+  @@index([recipeId])
 }

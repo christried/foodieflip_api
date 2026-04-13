@@ -49,6 +49,10 @@ function parseUsername(rawUsername: unknown): string | null {
   return normalized;
 }
 
+function toUsernameCanonical(username: string): string {
+  return username.toLowerCase();
+}
+
 // POST /api/auth/google
 authRouter.post(
   "/google",
@@ -194,7 +198,10 @@ authRouter.patch("/username", async (req: Request, res: Response) => {
   try {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: { username },
+      data: {
+        username,
+        usernameCanonical: toUsernameCanonical(username),
+      },
       select: {
         id: true,
         email: true,
