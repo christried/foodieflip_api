@@ -53,7 +53,7 @@ function parseRecipeId(value: unknown): string | null {
   return normalized.length > 0 ? normalized : null;
 }
 
-function getFavoriteAuthUser(res: Response) {
+function validateAuthUser(res: Response) {
   const authUser = getAuthUser(res);
   if (!authUser) {
     res.status(401).json({ error: "Authentication required." });
@@ -72,7 +72,7 @@ function getFavoriteAuthUser(res: Response) {
 
 // GET /api/favorites
 favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
-  const authUser = getFavoriteAuthUser(res);
+  const authUser = validateAuthUser(res);
   if (!authUser) {
     return;
   }
@@ -110,7 +110,7 @@ favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
 
 // POST /api/favorites
 favoritesRouter.post("/", requireAuth, async (req: Request, res: Response) => {
-  const authUser = getFavoriteAuthUser(res);
+  const authUser = validateAuthUser(res);
   if (!authUser) {
     return;
   }
@@ -163,7 +163,7 @@ favoritesRouter.delete(
   "/:recipeId",
   requireAuth,
   async (req: Request, res: Response) => {
-    const authUser = getFavoriteAuthUser(res);
+    const authUser = validateAuthUser(res);
     if (!authUser) {
       return;
     }
