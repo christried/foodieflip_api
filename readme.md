@@ -82,6 +82,12 @@ Optional:
 - `PATCH /api/auth/username`
 - `POST /api/auth/logout`
 
+## Favorites Endpoints
+
+- `GET /api/favorites` (auth required, username required)
+- `POST /api/favorites` (auth required, username required)
+- `DELETE /api/favorites/:recipeId` (auth required, username required)
+
 Google login response includes `needsUsername` to support first-login onboarding.
 
 ## Local Development
@@ -113,6 +119,9 @@ npm run build
 - `GET /api/auth/me`
 - `PATCH /api/auth/username`
 - `POST /api/auth/logout`
+- `GET /api/favorites` (auth required, username required)
+- `POST /api/favorites` (auth required, username required)
+- `DELETE /api/favorites/:recipeId` (auth required, username required)
 - `GET /api/recipes/random/:complexity`
 - `GET /api/recipes/:shortTitle`
 - `PATCH /api/recipes/vote`
