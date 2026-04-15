@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
 import { getAuthUser, requireAuth } from "../middleware/auth";
-
+import { SUBMITTED_BY_FALLBACK } from "./recipes";
 export const favoritesRouter = Router();
 
 interface FavoriteRecipeDto {
@@ -38,6 +38,11 @@ function getFavoriteUser(res: Response) {
   return authUser;
 }
 
+function resolveSubmittedBy(username: string | null | undefined): string {
+  const normalizedUsername = username?.trim();
+  return normalizedUsername || SUBMITTED_BY_FALLBACK;
+}
+
 // GET /api/favorites
 favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
   const authUser = getFavoriteUser(res);
@@ -61,7 +66,9 @@ favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
             imageExtension: true,
             imageAlt: true,
             time: true,
-            submittedBy: true,
+            submittedByUser: {
+              select: { username: true },
+            },
           },
         },
       },
@@ -79,7 +86,9 @@ favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
           ),
           imageAlt: favorite.recipe.imageAlt,
           time: favorite.recipe.time,
-          submittedBy: favorite.recipe.submittedBy,
+          submittedBy: resolveSubmittedBy(
+            favorite.recipe.submittedByUser?.username,
+          ),
         }),
       ),
     );
