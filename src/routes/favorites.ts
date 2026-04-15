@@ -1,9 +1,8 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
 import { getAuthUser, requireAuth } from "../middleware/auth";
-
+import { SUBMITTED_BY_FALLBACK } from "./recipes";
 export const favoritesRouter = Router();
-const SUBMITTED_BY_FALLBACK = "FoodieFlip";
 
 interface FavoriteRecipeDto {
   id: string;
