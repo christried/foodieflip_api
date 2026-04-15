@@ -151,7 +151,7 @@ favoritesRouter.post("/", requireAuth, async (req: Request, res: Response) => {
       update: {},
     });
 
-    res.status(201).json({ message: "Recipe favorited." });
+    res.status(200).json({ message: "Recipe favorited." });
   } catch (error) {
     console.error("Failed to add favorite:", error);
     res.status(500).json({ error: "Could not add favorite." });
