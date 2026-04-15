@@ -1,5 +1,4 @@
 import { Router, Request, Response } from "express";
-import { Recipe } from "@prisma/client";
 import { prisma } from "../prisma";
 import { getAuthUser, requireAuth } from "../middleware/auth";
 
@@ -15,33 +14,10 @@ interface FavoriteRecipeDto {
   submittedBy: string;
 }
 
-type FavoriteRecipeRecord = Pick<
-  Recipe,
-  | "id"
-  | "shortTitle"
-  | "title"
-  | "imageExtension"
-  | "imageAlt"
-  | "time"
-  | "submittedBy"
->;
-
-function buildImageUrl(recipe: Pick<Recipe, "id" | "imageExtension">): string {
+function buildImageUrl(id: string, imageExtension: string): string {
   const cdnBase = process.env["SPACES_CDN_BASE_URL"] as string;
-  const extension = recipe.imageExtension.toLowerCase() || "jpg";
-  return `${cdnBase}/images/${recipe.id}/medium-300w.${extension}`;
-}
-
-function toFavoriteRecipeDto(recipe: FavoriteRecipeRecord): FavoriteRecipeDto {
-  return {
-    id: recipe.id,
-    shortTitle: recipe.shortTitle,
-    title: recipe.title,
-    imageUrl: buildImageUrl(recipe),
-    imageAlt: recipe.imageAlt,
-    time: recipe.time,
-    submittedBy: recipe.submittedBy,
-  };
+  const extension = imageExtension.toLowerCase() || "jpg";
+  return `${cdnBase}/images/${id}/medium-300w.${extension}`;
 }
 
 function parseRecipeId(value: unknown): string | null {
@@ -53,26 +29,18 @@ function parseRecipeId(value: unknown): string | null {
   return normalized.length > 0 ? normalized : null;
 }
 
-function validateAuthUser(res: Response) {
+function getFavoriteUser(res: Response) {
   const authUser = getAuthUser(res);
   if (!authUser) {
     res.status(401).json({ error: "Authentication required." });
     return null;
   }
-
-  if (!authUser.username) {
-    res.status(409).json({
-      error: "Please set a username before managing favorites.",
-    });
-    return null;
-  }
-
   return authUser;
 }
 
 // GET /api/favorites
 favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
-  const authUser = validateAuthUser(res);
+  const authUser = getFavoriteUser(res);
   if (!authUser) {
     return;
   }
@@ -99,9 +67,22 @@ favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(200)
-      .json(favorites.map((favorite) => toFavoriteRecipeDto(favorite.recipe)));
+    res.status(200).json(
+      favorites.map(
+        (favorite): FavoriteRecipeDto => ({
+          id: favorite.recipe.id,
+          shortTitle: favorite.recipe.shortTitle,
+          title: favorite.recipe.title,
+          imageUrl: buildImageUrl(
+            favorite.recipe.id,
+            favorite.recipe.imageExtension,
+          ),
+          imageAlt: favorite.recipe.imageAlt,
+          time: favorite.recipe.time,
+          submittedBy: favorite.recipe.submittedBy,
+        }),
+      ),
+    );
   } catch (error) {
     console.error("Failed to fetch favorites:", error);
     res.status(500).json({ error: "Could not fetch favorites." });
@@ -110,7 +91,7 @@ favoritesRouter.get("/", requireAuth, async (_req: Request, res: Response) => {
 
 // POST /api/favorites
 favoritesRouter.post("/", requireAuth, async (req: Request, res: Response) => {
-  const authUser = validateAuthUser(res);
+  const authUser = getFavoriteUser(res);
   if (!authUser) {
     return;
   }
@@ -151,7 +132,7 @@ favoritesRouter.post("/", requireAuth, async (req: Request, res: Response) => {
       update: {},
     });
 
-    res.status(200).json({ message: "Recipe favorited." });
+    res.status(204).send();
   } catch (error) {
     console.error("Failed to add favorite:", error);
     res.status(500).json({ error: "Could not add favorite." });
@@ -163,7 +144,7 @@ favoritesRouter.delete(
   "/:recipeId",
   requireAuth,
   async (req: Request, res: Response) => {
-    const authUser = validateAuthUser(res);
+    const authUser = getFavoriteUser(res);
     if (!authUser) {
       return;
     }
