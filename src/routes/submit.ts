@@ -225,7 +225,7 @@ submitRouter.post(
     const body = req.body as Record<string, string>;
 
     const title = body["title"]?.trim() ?? "";
-    const submittedBy = authUser.username;
+    const submittedByUsername = authUser.username;
     const timeString = body["time"] ?? "";
 
     if (!title) {
@@ -300,7 +300,6 @@ submitRouter.post(
           instructions,
           tagsPublic: [],
           tagsInternal: [],
-          submittedBy,
           submittedByUserId: authUser.id,
           status: "PENDING",
         },
@@ -324,7 +323,8 @@ submitRouter.post(
           tags_internal: [],
           upvotes: 0,
           downvotes: 0,
-          submittedBy,
+          submittedByUserId: authUser.id,
+          submittedByUsername,
           status: "PENDING",
         },
         null,

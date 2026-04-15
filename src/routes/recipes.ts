@@ -9,6 +9,11 @@ export const recipeRouter = Router();
 
 const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
 const RESERVED_RECIPE_SLUGS = new Set(["random", "vote"]);
+const SUBMITTED_BY_FALLBACK = "FoodieFlip";
+
+type RecipeWithSubmitter = Recipe & {
+  submittedByUser: { username: string | null } | null;
+};
 
 const approveLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -50,8 +55,18 @@ function buildPublicRecipeUrl(shortTitle: string): string | undefined {
   return `${baseUrl}/${encodeURIComponent(shortTitle)}`;
 }
 
-function toPublicRecipe(recipe: Recipe) {
-  return { ...recipe, ...buildImageUrls(recipe) };
+function resolveSubmittedBy(recipe: RecipeWithSubmitter): string {
+  const username = recipe.submittedByUser?.username?.trim();
+  return username || SUBMITTED_BY_FALLBACK;
+}
+
+function toPublicRecipe(recipe: RecipeWithSubmitter) {
+  const { submittedByUser, ...recipeData } = recipe;
+  return {
+    ...recipeData,
+    ...buildImageUrls(recipe),
+    submittedBy: resolveSubmittedBy(recipe),
+  };
 }
 
 // GET /api/recipes/pending
@@ -63,6 +78,11 @@ recipeRouter.get(
     const pendingRecipes = await prisma.recipe.findMany({
       where: { status: "PENDING" },
       orderBy: { createdAt: "desc" },
+      include: {
+        submittedByUser: {
+          select: { username: true },
+        },
+      },
     });
 
     res.json(pendingRecipes.map(toPublicRecipe));
@@ -95,6 +115,11 @@ recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
       status: "APPROVED",
       time: { gte: minTime, lte: maxTime },
       NOT: latestRecipeId ? { id: latestRecipeId } : undefined,
+    },
+    include: {
+      submittedByUser: {
+        select: { username: true },
+      },
     },
   });
 
@@ -201,6 +226,11 @@ recipeRouter.patch(
           approvedBy,
           reviewNotes: null,
         },
+        include: {
+          submittedByUser: {
+            select: { username: true },
+          },
+        },
       });
 
       const { imageUrl } = buildImageUrls(approvedRecipe);
@@ -208,7 +238,7 @@ recipeRouter.patch(
       void DiscordService.sendRecipeNotification({
         title: approvedRecipe.title,
         recipeUrl: buildPublicRecipeUrl(approvedRecipe.shortTitle),
-        submittedBy: approvedRecipe.submittedBy,
+        submittedBy: resolveSubmittedBy(approvedRecipe),
         time: approvedRecipe.time,
         imageUrl,
       });
@@ -243,7 +273,14 @@ recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
     return;
   }
 
-  const recipe = await prisma.recipe.findUnique({ where: { shortTitle } });
+  const recipe = await prisma.recipe.findUnique({
+    where: { shortTitle },
+    include: {
+      submittedByUser: {
+        select: { username: true },
+      },
+    },
+  });
   if (!recipe || recipe.status !== "APPROVED") {
     res
       .status(404)

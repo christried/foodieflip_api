@@ -49,7 +49,6 @@ model Recipe {
   tagsInternal   String[]
   upvotes        Int          @default(0)
   downvotes      Int          @default(0)
-  submittedBy    String       @default("FoodieFlip")
   submittedByUserId String?
   submittedByUser User? @relation("SubmittedRecipes", fields: [submittedByUserId], references: [id], onDelete: SetNull)
   favoritedByUsers FavoriteRecipe[]
