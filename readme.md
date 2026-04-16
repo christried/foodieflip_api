@@ -122,6 +122,7 @@ npm run build
 - `GET /api/favorites` (auth required, username required)
 - `POST /api/favorites` (auth required, username required)
 - `DELETE /api/favorites/:recipeId` (auth required, username required)
+- `GET /api/recipes/mine` (auth required)
 - `GET /api/recipes/random/:complexity`
 - `GET /api/recipes/:shortTitle`
 - `PATCH /api/recipes/vote`

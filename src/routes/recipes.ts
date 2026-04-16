@@ -9,7 +9,7 @@ export const recipeRouter = Router();
 export const SUBMITTED_BY_FALLBACK = "FoodieFlip";
 
 const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
-const RESERVED_RECIPE_SLUGS = new Set(["random", "vote"]);
+const RESERVED_RECIPE_SLUGS = new Set(["random", "vote", "mine"]);
 
 type RecipeWithSubmitter = Recipe & {
   submittedByUser: { username: string | null } | null;
@@ -261,6 +261,27 @@ recipeRouter.patch(
     res.json({ message: "Recipe rejected", id });
   },
 );
+
+// GET /api/recipes/mine
+recipeRouter.get("/mine", requireAuth, async (_req: Request, res: Response) => {
+  const authUser = getAuthUser(res);
+
+  const recipes = await prisma.recipe.findMany({
+    where: {
+      submittedByUserId: authUser!.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      submittedByUser: {
+        select: { username: true },
+      },
+    },
+  });
+
+  res.json(recipes.map(toPublicRecipe));
+});
 
 // GET /api/recipes/:shortTitle
 recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
