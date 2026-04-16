@@ -1,13 +1,19 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
-import { Recipe } from "@prisma/client";
+import { Recipe, UserRole } from "@prisma/client";
 import rateLimit from "express-rate-limit";
 import { DiscordService } from "../utils/discord.service";
+import { getAuthUser, requireAuth, requireRole } from "../middleware/auth";
+import { SUBMITTED_BY_FALLBACK } from "../constants/recipes";
 
 export const recipeRouter = Router();
 
 const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
-const RESERVED_RECIPE_SLUGS = new Set(["random", "vote"]);
+const RESERVED_RECIPE_SLUGS = new Set(["random", "vote", "mine"]);
+
+type RecipeWithSubmitter = Recipe & {
+  submittedByUser: { username: string | null } | null;
+};
 
 const approveLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -49,19 +55,39 @@ function buildPublicRecipeUrl(shortTitle: string): string | undefined {
   return `${baseUrl}/${encodeURIComponent(shortTitle)}`;
 }
 
-function toPublicRecipe(recipe: Recipe) {
-  return { ...recipe, ...buildImageUrls(recipe) };
+function resolveSubmittedBy(recipe: RecipeWithSubmitter): string {
+  const username = recipe.submittedByUser?.username?.trim();
+  return username || SUBMITTED_BY_FALLBACK;
+}
+
+function toPublicRecipe(recipe: RecipeWithSubmitter) {
+  const { submittedByUser, ...recipeData } = recipe;
+  return {
+    ...recipeData,
+    ...buildImageUrls(recipe),
+    submittedBy: resolveSubmittedBy(recipe),
+  };
 }
 
 // GET /api/recipes/pending
-recipeRouter.get("/pending", async (_req: Request, res: Response) => {
-  const pendingRecipes = await prisma.recipe.findMany({
-    where: { status: "PENDING" },
-    orderBy: { createdAt: "desc" },
-  });
+recipeRouter.get(
+  "/pending",
+  requireAuth,
+  requireRole(UserRole.ADMIN),
+  async (_req: Request, res: Response) => {
+    const pendingRecipes = await prisma.recipe.findMany({
+      where: { status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+      include: {
+        submittedByUser: {
+          select: { username: true },
+        },
+      },
+    });
 
-  res.json(pendingRecipes.map(toPublicRecipe));
-});
+    res.json(pendingRecipes.map(toPublicRecipe));
+  },
+);
 
 // GET /api/recipes/random/:complexity
 recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
@@ -89,6 +115,11 @@ recipeRouter.get("/random/:complexity", async (req: Request, res: Response) => {
       status: "APPROVED",
       time: { gte: minTime, lte: maxTime },
       NOT: latestRecipeId ? { id: latestRecipeId } : undefined,
+    },
+    include: {
+      submittedByUser: {
+        select: { username: true },
+      },
     },
   });
 
@@ -149,11 +180,14 @@ recipeRouter.patch("/vote", async (req: Request, res: Response) => {
 recipeRouter.patch(
   "/approve/:id",
   approveLimiter,
+  requireAuth,
+  requireRole(UserRole.ADMIN),
   async (req: Request, res: Response) => {
     const idParam = req.params["id"];
     const id = Array.isArray(idParam) ? idParam[0] : idParam;
     const action = req.body.action as string | undefined;
     const reviewNotesRaw = req.body.reviewNotes as string | undefined;
+    const authUser = getAuthUser(res);
 
     if (!id) {
       res.status(400).json({ error: "Missing recipe id" });
@@ -181,13 +215,21 @@ recipeRouter.patch(
     }
 
     if (action === "approve") {
+      const approvedBy =
+        authUser?.username || authUser?.email || "internal-admin";
+
       const approvedRecipe = await prisma.recipe.update({
         where: { id },
         data: {
           status: "APPROVED",
           approvedAt: new Date(),
-          approvedBy: "internal-admin",
+          approvedBy,
           reviewNotes: null,
+        },
+        include: {
+          submittedByUser: {
+            select: { username: true },
+          },
         },
       });
 
@@ -196,7 +238,7 @@ recipeRouter.patch(
       void DiscordService.sendRecipeNotification({
         title: approvedRecipe.title,
         recipeUrl: buildPublicRecipeUrl(approvedRecipe.shortTitle),
-        submittedBy: approvedRecipe.submittedBy,
+        submittedBy: resolveSubmittedBy(approvedRecipe),
         time: approvedRecipe.time,
         imageUrl,
       });
@@ -220,6 +262,27 @@ recipeRouter.patch(
   },
 );
 
+// GET /api/recipes/mine
+recipeRouter.get("/mine", requireAuth, async (_req: Request, res: Response) => {
+  const authUser = getAuthUser(res);
+
+  const recipes = await prisma.recipe.findMany({
+    where: {
+      submittedByUserId: authUser!.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      submittedByUser: {
+        select: { username: true },
+      },
+    },
+  });
+
+  res.json(recipes.map(toPublicRecipe));
+});
+
 // GET /api/recipes/:shortTitle
 recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
   const shortTitle = req.params["shortTitle"] as string;
@@ -231,7 +294,14 @@ recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
     return;
   }
 
-  const recipe = await prisma.recipe.findUnique({ where: { shortTitle } });
+  const recipe = await prisma.recipe.findUnique({
+    where: { shortTitle },
+    include: {
+      submittedByUser: {
+        select: { username: true },
+      },
+    },
+  });
   if (!recipe || recipe.status !== "APPROVED") {
     res
       .status(404)
