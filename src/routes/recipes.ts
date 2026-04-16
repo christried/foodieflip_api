@@ -262,6 +262,31 @@ recipeRouter.patch(
   },
 );
 
+// GET /api/recipes/mine
+recipeRouter.get("/mine", requireAuth, async (_req: Request, res: Response) => {
+  const authUser = getAuthUser(res);
+  if (!authUser) {
+    res.status(401).json({ error: "Authentication required." });
+    return;
+  }
+
+  const recipes = await prisma.recipe.findMany({
+    where: {
+      submittedByUserId: authUser.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      submittedByUser: {
+        select: { username: true },
+      },
+    },
+  });
+
+  res.json(recipes.map(toPublicRecipe));
+});
+
 // GET /api/recipes/:shortTitle
 recipeRouter.get("/:shortTitle", async (req: Request, res: Response) => {
   const shortTitle = req.params["shortTitle"] as string;
