@@ -84,9 +84,9 @@ Optional:
 
 ## Favorites Endpoints
 
-- `GET /api/favorites` (auth required, username required)
-- `POST /api/favorites` (auth required, username required)
-- `DELETE /api/favorites/:recipeId` (auth required, username required)
+- `GET /api/favorites` (auth required)
+- `POST /api/favorites` (auth required)
+- `DELETE /api/favorites/:recipeId` (auth required)
 
 Google login response includes `needsUsername` to support first-login onboarding.
 

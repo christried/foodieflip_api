@@ -108,7 +108,7 @@ authRouter.post(
           googleSub: payload.sub,
           email: normalizedEmail,
           lastLoginAt: new Date(),
-        } as unknown as Prisma.UserCreateInput,
+        },
         select: {
           id: true,
           email: true,

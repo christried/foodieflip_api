@@ -4,9 +4,9 @@ import { Recipe, UserRole } from "@prisma/client";
 import rateLimit from "express-rate-limit";
 import { DiscordService } from "../utils/discord.service";
 import { getAuthUser, requireAuth, requireRole } from "../middleware/auth";
+import { SUBMITTED_BY_FALLBACK } from "../constants/recipes";
 
 export const recipeRouter = Router();
-export const SUBMITTED_BY_FALLBACK = "FoodieFlip";
 
 const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
 const RESERVED_RECIPE_SLUGS = new Set(["random", "vote", "mine"]);

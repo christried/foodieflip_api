@@ -210,12 +210,8 @@ submitRouter.post(
   upload.single("image"),
   async (req: Request, res: Response) => {
     const authUser = getAuthUser(res);
-    if (!authUser) {
-      res.status(401).json({ message: "Authentication required" });
-      return;
-    }
 
-    if (!authUser.username) {
+    if (!authUser!.username) {
       res.status(409).json({
         message: "Please set a username before submitting recipes.",
       });
@@ -225,7 +221,7 @@ submitRouter.post(
     const body = req.body as Record<string, string>;
 
     const title = body["title"]?.trim() ?? "";
-    const submittedByUsername = authUser.username;
+    const submittedByUsername = authUser!.username;
     const timeString = body["time"] ?? "";
 
     if (!title) {
@@ -300,7 +296,7 @@ submitRouter.post(
           instructions,
           tagsPublic: [],
           tagsInternal: [],
-          submittedByUserId: authUser.id,
+          submittedByUserId: authUser!.id,
           status: "PENDING",
         },
       });
@@ -323,7 +319,7 @@ submitRouter.post(
           tags_internal: [],
           upvotes: 0,
           downvotes: 0,
-          submittedByUserId: authUser.id,
+          submittedByUserId: authUser!.id,
           submittedByUsername,
           status: "PENDING",
         },
