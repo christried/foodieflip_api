@@ -43,7 +43,7 @@ model Recipe {
   time           Int
   imageExtension String @default("jpg")
   imageAlt       String
-  ingredients    String[]
+  ingredients    Json
   instructions   String[]
   tagsPublic     String[]
   tagsInternal   String[]

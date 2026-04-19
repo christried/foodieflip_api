@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { uploadToSpaces } from "../utils/spaces";
 import sharp from "sharp";
 import { prisma } from "../prisma";
+import { Prisma } from "@prisma/client";
 import { getAuthUser, requireAuth } from "../middleware/auth";
 
 dotenv.config();
@@ -144,6 +145,49 @@ function getAdminPanelBaseUrl(): string {
   return (process.env["ADMIN_PANEL_URL_DEV"] || "").replace(/\/$/, "");
 }
 
+interface IngredientSectionDto {
+  title: string;
+  items: string[];
+}
+
+function parseIngredientSections(
+  raw: string | undefined,
+): Prisma.InputJsonArray | null {
+  let parsed: IngredientSectionDto[];
+
+  try {
+    parsed = JSON.parse(raw ?? "") as IngredientSectionDto[];
+  } catch {
+    return null;
+  }
+
+  if (!Array.isArray(parsed)) {
+    return null;
+  }
+
+  const isValid = parsed.every(
+    (section) =>
+      typeof section?.title === "string" &&
+      Array.isArray(section.items) &&
+      section.items.every((item) => typeof item === "string"),
+  );
+
+  if (!isValid) {
+    return null;
+  }
+
+  const normalized = parsed
+    .map((section) => ({
+      title: section.title.trim(),
+      items: section.items
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0),
+    }))
+    .filter((section) => section.title.length > 0 && section.items.length > 0);
+
+  return normalized as Prisma.InputJsonArray;
+}
+
 //PUT /api/submit/image
 
 submitRouter.put(
@@ -223,30 +267,20 @@ submitRouter.post(
     const title = body["title"]?.trim() ?? "";
     const submittedByUsername = authUser!.username;
     const timeString = body["time"] ?? "";
-
-    if (!title) {
-      res.status(400).json({ message: "Missing or empty title" });
-      return;
-    }
-
     const time = +timeString;
-    if (!Number.isInteger(time) || time <= 0) {
-      res.status(400).json({ message: "time must be a positive integer" });
-      return;
-    }
 
-    let ingredients: string[];
+    let ingredients: Prisma.InputJsonArray;
     let instructions: string[];
 
-    try {
-      ingredients = JSON.parse(body["ingredients"] ?? "");
-      if (!Array.isArray(ingredients)) throw new Error();
-    } catch {
-      res
-        .status(400)
-        .json({ message: "ingredients must be a valid JSON array" });
+    const parsedIngredients = parseIngredientSections(body["ingredients"]);
+    if (!parsedIngredients) {
+      res.status(400).json({
+        message:
+          "ingredients must be a valid JSON array of sections [{ title, items }]",
+      });
       return;
     }
+    ingredients = parsedIngredients;
 
     try {
       instructions = JSON.parse(body["instructions"] ?? "");
