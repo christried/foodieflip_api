@@ -67,17 +67,15 @@ export function normalizeIngredientSectionsFromUnknown(
     return [];
   }
 
-  const sections = value
-    .filter(isPlainObject)
-    .map((section) => {
-      const title = typeof section["title"] === "string" ? section["title"] : "";
-      const rawItems = section["items"];
-      const items = Array.isArray(rawItems)
-        ? rawItems.filter((item): item is string => typeof item === "string")
-        : [];
+  const sections = value.filter(isPlainObject).map((section) => {
+    const title = typeof section["title"] === "string" ? section["title"] : "";
+    const rawItems = section["items"];
+    const items = Array.isArray(rawItems)
+      ? rawItems.filter((item): item is string => typeof item === "string")
+      : [];
 
-      return { title, items };
-    });
+    return { title, items };
+  });
 
   return normalizeIngredientSections(sections);
 }
