@@ -1,20 +1,16 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../prisma";
-import { Recipe, UserRole, Prisma } from "@prisma/client";
+import { Recipe, UserRole } from "@prisma/client";
 import rateLimit from "express-rate-limit";
 import { DiscordService } from "../utils/discord.service";
 import { getAuthUser, requireAuth, requireRole } from "../middleware/auth";
 import { SUBMITTED_BY_FALLBACK } from "../constants/recipes";
+import { normalizeIngredientSectionsFromUnknown } from "../utils/ingredient-sections";
 
 export const recipeRouter = Router();
 
 const ALLOWED_COMPLEXITIES = ["quick", "ordinary", "complex"] as const;
 const RESERVED_RECIPE_SLUGS = new Set(["random", "vote", "mine"]);
-
-interface IngredientSectionDto {
-  title: string;
-  items: string[];
-}
 
 type RecipeWithSubmitter = Recipe & {
   submittedByUser: { username: string | null } | null;
@@ -65,27 +61,11 @@ function resolveSubmittedBy(recipe: RecipeWithSubmitter): string {
   return username || SUBMITTED_BY_FALLBACK;
 }
 
-function normalizeIngredientSections(value: Prisma.JsonArray): IngredientSectionDto[] {
-  if (value.length === 0) {
-    return [];
-  }
-
-  return value
-    .map((section) => section as Prisma.JsonObject)
-    .map((section) => ({
-      title: ((section["title"] as string) || "").trim(),
-      items: ((section["items"] as string[]) || [])
-        .map((item) => item.trim())
-        .filter((item) => item.length > 0),
-    }))
-    .filter((section) => section.title.length > 0 && section.items.length > 0);
-}
-
 function toPublicRecipe(recipe: RecipeWithSubmitter) {
   const { submittedByUser, ...recipeData } = recipe;
   return {
     ...recipeData,
-    ingredients: normalizeIngredientSections(recipeData.ingredients as Prisma.JsonArray),
+    ingredients: normalizeIngredientSectionsFromUnknown(recipeData.ingredients),
     ...buildImageUrls(recipe),
     submittedBy: resolveSubmittedBy(recipe),
   };

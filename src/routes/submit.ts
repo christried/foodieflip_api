@@ -7,6 +7,7 @@ import sharp from "sharp";
 import { prisma } from "../prisma";
 import { Prisma } from "@prisma/client";
 import { getAuthUser, requireAuth } from "../middleware/auth";
+import { parseIngredientSections } from "../utils/ingredient-sections";
 
 dotenv.config();
 
@@ -145,49 +146,6 @@ function getAdminPanelBaseUrl(): string {
   return (process.env["ADMIN_PANEL_URL_DEV"] || "").replace(/\/$/, "");
 }
 
-interface IngredientSectionDto {
-  title: string;
-  items: string[];
-}
-
-function parseIngredientSections(
-  raw: string | undefined,
-): Prisma.InputJsonArray | null {
-  let parsed: IngredientSectionDto[];
-
-  try {
-    parsed = JSON.parse(raw ?? "") as IngredientSectionDto[];
-  } catch {
-    return null;
-  }
-
-  if (!Array.isArray(parsed)) {
-    return null;
-  }
-
-  const isValid = parsed.every(
-    (section) =>
-      typeof section?.title === "string" &&
-      Array.isArray(section.items) &&
-      section.items.every((item) => typeof item === "string"),
-  );
-
-  if (!isValid) {
-    return null;
-  }
-
-  const normalized = parsed
-    .map((section) => ({
-      title: section.title.trim(),
-      items: section.items
-        .map((item) => item.trim())
-        .filter((item) => item.length > 0),
-    }))
-    .filter((section) => section.title.length > 0 && section.items.length > 0);
-
-  return normalized as Prisma.InputJsonArray;
-}
-
 //PUT /api/submit/image
 
 submitRouter.put(
@@ -280,7 +238,7 @@ submitRouter.post(
       });
       return;
     }
-    ingredients = parsedIngredients;
+    ingredients = parsedIngredients as unknown as Prisma.InputJsonArray;
 
     try {
       instructions = JSON.parse(body["instructions"] ?? "");
