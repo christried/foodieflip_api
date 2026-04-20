@@ -5,7 +5,9 @@ import dotenv from "dotenv";
 import { uploadToSpaces } from "../utils/spaces";
 import sharp from "sharp";
 import { prisma } from "../prisma";
+import { Prisma } from "@prisma/client";
 import { getAuthUser, requireAuth } from "../middleware/auth";
+import { parseIngredientSections } from "../utils/ingredient-sections";
 
 dotenv.config();
 
@@ -223,30 +225,20 @@ submitRouter.post(
     const title = body["title"]?.trim() ?? "";
     const submittedByUsername = authUser!.username;
     const timeString = body["time"] ?? "";
-
-    if (!title) {
-      res.status(400).json({ message: "Missing or empty title" });
-      return;
-    }
-
     const time = +timeString;
-    if (!Number.isInteger(time) || time <= 0) {
-      res.status(400).json({ message: "time must be a positive integer" });
-      return;
-    }
 
-    let ingredients: string[];
+    let ingredients: Prisma.InputJsonArray;
     let instructions: string[];
 
-    try {
-      ingredients = JSON.parse(body["ingredients"] ?? "");
-      if (!Array.isArray(ingredients)) throw new Error();
-    } catch {
-      res
-        .status(400)
-        .json({ message: "ingredients must be a valid JSON array" });
+    const parsedIngredients = parseIngredientSections(body["ingredients"]);
+    if (!parsedIngredients) {
+      res.status(400).json({
+        message:
+          "ingredients must be a valid JSON array of sections [{ title, items }]",
+      });
       return;
     }
+    ingredients = parsedIngredients as unknown as Prisma.InputJsonArray;
 
     try {
       instructions = JSON.parse(body["instructions"] ?? "");

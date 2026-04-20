@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import { DiscordService } from "../utils/discord.service";
 import { getAuthUser, requireAuth, requireRole } from "../middleware/auth";
 import { SUBMITTED_BY_FALLBACK } from "../constants/recipes";
+import { normalizeIngredientSectionsFromUnknown } from "../utils/ingredient-sections";
 
 export const recipeRouter = Router();
 
@@ -64,6 +65,7 @@ function toPublicRecipe(recipe: RecipeWithSubmitter) {
   const { submittedByUser, ...recipeData } = recipe;
   return {
     ...recipeData,
+    ingredients: normalizeIngredientSectionsFromUnknown(recipeData.ingredients),
     ...buildImageUrls(recipe),
     submittedBy: resolveSubmittedBy(recipe),
   };
