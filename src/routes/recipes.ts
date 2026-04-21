@@ -271,6 +271,7 @@ recipeRouter.get("/mine", requireAuth, async (_req: Request, res: Response) => {
   const recipes = await prisma.recipe.findMany({
     where: {
       submittedByUserId: authUser!.id,
+      status: "APPROVED",
     },
     orderBy: {
       createdAt: "desc",

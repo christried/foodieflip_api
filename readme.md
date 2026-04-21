@@ -31,9 +31,9 @@ Notes:
 Submission routes upload files to Spaces under submission namespaces, then create Trello cards:
 
 - Image submissions: `submissions/images/<recipeId>/<timestamp>-<name>/...`
-- Recipe submissions: `submissions/recipes/<timestamp>-<name>/...`
+- Recipe submissions: `images/<recipeId>/...`
 
-These uploads are for moderation context. They do not auto-publish recipes.
+Recipe submissions are created with status `PENDING`. Admin approval changes only the database status to `APPROVED`.
 
 ## Environment Variables
 
