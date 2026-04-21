@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import { DiscordService } from "../utils/discord.service";
 import { getAuthUser, requireAuth, requireRole } from "../middleware/auth";
 import { SUBMITTED_BY_FALLBACK } from "../constants/recipes";
+import { normalizeIngredientSectionsFromUnknown } from "../utils/ingredient-sections";
 
 export const recipeRouter = Router();
 
@@ -64,6 +65,7 @@ function toPublicRecipe(recipe: RecipeWithSubmitter) {
   const { submittedByUser, ...recipeData } = recipe;
   return {
     ...recipeData,
+    ingredients: normalizeIngredientSectionsFromUnknown(recipeData.ingredients),
     ...buildImageUrls(recipe),
     submittedBy: resolveSubmittedBy(recipe),
   };
@@ -269,6 +271,7 @@ recipeRouter.get("/mine", requireAuth, async (_req: Request, res: Response) => {
   const recipes = await prisma.recipe.findMany({
     where: {
       submittedByUserId: authUser!.id,
+      status: "APPROVED",
     },
     orderBy: {
       createdAt: "desc",

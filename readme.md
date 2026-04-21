@@ -1,3 +1,7 @@
+# AI Disclaimer
+
+Writing this Readme and some advanced parts of this project I have been assisted by ID as part of my workflow.
+
 # FoodieFlip API
 
 Backend API for FoodieFlip recipes, feedback, and moderated submissions.
@@ -31,9 +35,9 @@ Notes:
 Submission routes upload files to Spaces under submission namespaces, then create Trello cards:
 
 - Image submissions: `submissions/images/<recipeId>/<timestamp>-<name>/...`
-- Recipe submissions: `submissions/recipes/<timestamp>-<name>/...`
+- Recipe submissions: `images/<recipeId>/...`
 
-These uploads are for moderation context. They do not auto-publish recipes.
+Recipe submissions are created with status `PENDING`. Admin approval changes only the database status to `APPROVED`.
 
 ## Environment Variables
 
@@ -111,6 +115,30 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Database Migration Workflow (Dev -> Prod)
+
+Use this flow for schema changes:
+
+1. Update `prisma/schema.prisma` in your local/dev environment.
+2. Create and apply a migration to your dev DB:
+
+```bash
+npm run db:migrate:dev -- --name <migration_name>
+```
+
+3. Verify the app still works (`npm run dev`, tests, and `npm run build`).
+4. Commit both schema and migration files (`prisma/schema.prisma` and `prisma/migrations/*`).
+5. Deploy/merge to `main` only after validation. Production should apply existing migrations with:
+
+```bash
+npm run db:migrate:deploy
+```
+
+Notes:
+
+- Do not run `prisma migrate dev` against production.
+- Prisma CLI is kept in `dependencies` because build and release commands need it when installs omit dev dependencies.
 
 ## API Routes
 

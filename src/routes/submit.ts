@@ -5,7 +5,9 @@ import dotenv from "dotenv";
 import { uploadToSpaces } from "../utils/spaces";
 import sharp from "sharp";
 import { prisma } from "../prisma";
+import { Prisma } from "@prisma/client";
 import { getAuthUser, requireAuth } from "../middleware/auth";
+import { parseIngredientSections } from "../utils/ingredient-sections";
 
 dotenv.config();
 
@@ -223,30 +225,20 @@ submitRouter.post(
     const title = body["title"]?.trim() ?? "";
     const submittedByUsername = authUser!.username;
     const timeString = body["time"] ?? "";
-
-    if (!title) {
-      res.status(400).json({ message: "Missing or empty title" });
-      return;
-    }
-
     const time = +timeString;
-    if (!Number.isInteger(time) || time <= 0) {
-      res.status(400).json({ message: "time must be a positive integer" });
-      return;
-    }
 
-    let ingredients: string[];
+    let ingredients: Prisma.InputJsonArray;
     let instructions: string[];
 
-    try {
-      ingredients = JSON.parse(body["ingredients"] ?? "");
-      if (!Array.isArray(ingredients)) throw new Error();
-    } catch {
-      res
-        .status(400)
-        .json({ message: "ingredients must be a valid JSON array" });
+    const parsedIngredients = parseIngredientSections(body["ingredients"]);
+    if (!parsedIngredients) {
+      res.status(400).json({
+        message:
+          "ingredients must be a valid JSON array of sections [{ title, items }]",
+      });
       return;
     }
+    ingredients = parsedIngredients as unknown as Prisma.InputJsonArray;
 
     try {
       instructions = JSON.parse(body["instructions"] ?? "");
@@ -258,34 +250,16 @@ submitRouter.post(
       return;
     }
 
+    let createdRecipe: { id: string; status: string } | null = null;
+    let uploadCompleted = !req.file;
+
     try {
-      let originalUrl: string | undefined;
-      let mediumUrl: string | undefined;
-      let smallUrl: string | undefined;
-      let imageExtension = "jpg";
-
-      if (req.file) {
-        const safeFileBaseName = stripExtension(
-          sanitizeFilename(req.file.originalname),
-        );
-        const timestamp = Date.now();
-        const variantRoot = `submissions/recipes/${timestamp}-${safeFileBaseName}`;
-
-        const variants = await createImageVariants(req.file);
-        imageExtension = variants.extension;
-        const originalKey = `${variantRoot}/original.${variants.extension}`;
-        const mediumKey = `${variantRoot}/medium-300w.${variants.extension}`;
-        const smallKey = `${variantRoot}/small-100w.${variants.extension}`;
-
-        [originalUrl, mediumUrl, smallUrl] = await Promise.all([
-          uploadToSpaces(req.file.buffer, originalKey, req.file.mimetype),
-          uploadToSpaces(variants.medium300, mediumKey, req.file.mimetype),
-          uploadToSpaces(variants.small100, smallKey, req.file.mimetype),
-        ]);
-      }
+      const imageExtension = req.file
+        ? getExtensionFromMimeType(req.file.mimetype)
+        : "jpg";
 
       const shortTitle = await generateUniqueShortTitle(title);
-      const createdRecipe = await prisma.recipe.create({
+      createdRecipe = await prisma.recipe.create({
         data: {
           title,
           shortTitle,
@@ -300,6 +274,27 @@ submitRouter.post(
           status: "PENDING",
         },
       });
+
+      let originalUrl: string | undefined;
+      let mediumUrl: string | undefined;
+      let smallUrl: string | undefined;
+
+      if (req.file) {
+        const variantRoot = `images/${createdRecipe.id}`;
+
+        const variants = await createImageVariants(req.file);
+        const originalKey = `${variantRoot}/original.${variants.extension}`;
+        const mediumKey = `${variantRoot}/medium-300w.${variants.extension}`;
+        const smallKey = `${variantRoot}/small-100w.${variants.extension}`;
+
+        [originalUrl, mediumUrl, smallUrl] = await Promise.all([
+          uploadToSpaces(req.file.buffer, originalKey, req.file.mimetype),
+          uploadToSpaces(variants.medium300, mediumKey, req.file.mimetype),
+          uploadToSpaces(variants.small100, smallKey, req.file.mimetype),
+        ]);
+
+        uploadCompleted = true;
+      }
 
       const adminPanelBaseUrl = getAdminPanelBaseUrl();
       const idList = process.env["TRELLO_NEW_RECIPES_LIST_ID"] as string;
@@ -341,6 +336,17 @@ submitRouter.post(
         status: createdRecipe.status,
       });
     } catch (error) {
+      if (createdRecipe && !uploadCompleted) {
+        try {
+          await prisma.recipe.delete({ where: { id: createdRecipe.id } });
+        } catch (cleanupError) {
+          console.error(
+            "Failed to clean up recipe after upload error:",
+            cleanupError,
+          );
+        }
+      }
+
       console.error("Failed to submit recipe:", error);
       res.status(502).json({
         message: "Could not submit recipe for review. Please try again later.",

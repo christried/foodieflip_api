@@ -1,14 +1,68 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
 }
 
-generator client {
-  provider = "prisma-client-js"
+model User {
+  id                String           @id @default(cuid())
+  googleSub         String           @unique
+  email             String           @unique
+  username          String?
+  role              UserRole         @default(USER)
+  lastLoginAt       DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  usernameCanonical String?          @unique
+  favoriteRecipes   FavoriteRecipe[]
+  submittedRecipes  Recipe[]         @relation("SubmittedRecipes")
+}
+
+model Recipe {
+  id                String           @id @default(cuid())
+  title             String
+  shortTitle        String           @unique
+  time              Int
+  imageAlt          String
+  ingredients       Json             @default("[]")
+  instructions      String[]
+  tagsPublic        String[]
+  tagsInternal      String[]
+  upvotes           Int              @default(0)
+  downvotes         Int              @default(0)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  imageExtension    String           @default("jpg")
+  approvedAt        DateTime?
+  approvedBy        String?
+  reviewNotes       String?
+  status            RecipeStatus     @default(PENDING)
+  submittedByUserId String?
+  favoritedByUsers  FavoriteRecipe[]
+  submittedByUser   User?            @relation("SubmittedRecipes", fields: [submittedByUserId], references: [id])
+
+  @@index([submittedByUserId])
+}
+
+model FavoriteRecipe {
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, recipeId])
+  @@index([recipeId])
+}
+
+model user_sessions {
+  sid    String   @id(map: "session_pkey") @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
 }
 
 enum RecipeStatus {
@@ -20,56 +74,4 @@ enum RecipeStatus {
 enum UserRole {
   USER
   ADMIN
-}
-
-model User {
-  id               String   @id @default(cuid())
-  googleSub        String   @unique
-  email            String   @unique
-  username         String?
-  usernameCanonical String?  @unique
-  role             UserRole @default(USER)
-  lastLoginAt      DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  submittedRecipes Recipe[] @relation("SubmittedRecipes")
-  favoriteRecipes  FavoriteRecipe[]
-}
-
-model Recipe {
-  id             String       @id @default(cuid())
-  title          String
-  shortTitle     String       @unique
-  time           Int
-  imageExtension String @default("jpg")
-  imageAlt       String
-  ingredients    String[]
-  instructions   String[]
-  tagsPublic     String[]
-  tagsInternal   String[]
-  upvotes        Int          @default(0)
-  downvotes      Int          @default(0)
-  submittedByUserId String?
-  submittedByUser User? @relation("SubmittedRecipes", fields: [submittedByUserId], references: [id], onDelete: SetNull)
-  favoritedByUsers FavoriteRecipe[]
-  status         RecipeStatus @default(PENDING)
-  approvedBy     String?
-  approvedAt     DateTime?
-  reviewNotes    String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-
-  @@index([submittedByUserId])
-}
-
-model FavoriteRecipe {
-  userId    String
-  recipeId  String
-  createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-
-  @@id([userId, recipeId])
-  @@index([recipeId])
 }

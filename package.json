@@ -7,7 +7,10 @@
     "node": "22.x"
   },
   "scripts": {
-    "build": "npx prisma generate && tsc",
+    "db:generate": "prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "build": "npm run db:generate && tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only --no-deps src/server.ts",
     "heroku-postbuild": "npm run build"
@@ -31,7 +34,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^8.0.4",
     "pg": "^8.20.0",
-    "prisma": "^7.5.0",
+    "prisma": "^7.7.0",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
